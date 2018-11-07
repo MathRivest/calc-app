@@ -1,8 +1,13 @@
 # calc-app
 
+## Deployment
+- Each PR will have its own Netlify preview attached
+- Master will autodeploy on `https://determined-raman-630ac7.netlify.com/`
+
 ## To-Dos
 
-- Prendre une string et supporter mathematiques de base (+-*/)
+- Prendre une string et supporter mathematiques de base
+- +, -, *, /, white spaces
 - 
 
 ## CLI Commands
