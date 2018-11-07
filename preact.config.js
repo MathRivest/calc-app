@@ -8,6 +8,6 @@ const preactCliTypeScript = require('preact-cli-plugin-typescript');
  * @param {object} env options passed to CLI.
  * @param {WebpackConfigHelpers} helpers object with useful helpers when working with config.
  **/
-export default function (config, env, helpers) {
+export default function(config, env, helpers) {
   preactCliTypeScript(config);
 }
