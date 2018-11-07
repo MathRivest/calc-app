@@ -8,7 +8,6 @@
 
 - Prendre une string et supporter mathematiques de base
 - +, -, *, /, white spaces
-- 
 
 ## CLI Commands
 
