@@ -1,12 +1,16 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es5",
     "module": "esnext",
     "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
     "jsxFactory": "h",
-    "allowJs": true
+    "allowJs": true,
+    "lib": [
+      "dom",
+      "es2015"
+    ],
   }
 }
