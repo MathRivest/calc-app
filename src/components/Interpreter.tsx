@@ -5,7 +5,8 @@ export default ({ value }: { value: string }) => {
   let results;
   try {
     results = interpreter(value);
-  } catch {
+  } catch(error) {
+    console.log(error)
     results = 'Nope';
   }
   return <div>{value}: {results}</div>;

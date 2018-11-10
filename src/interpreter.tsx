@@ -34,6 +34,8 @@ type BinaryExpression = {
   operator: string;
 };
 
+const supportedOperators = ['+', '-', '*', '/'];
+
 function tokenizer(input: string): Token[] {
   let current = 0;
 
@@ -42,10 +44,10 @@ function tokenizer(input: string): Token[] {
   while (current < input.length) {
     let char = input[current];
 
-    if (char === '+') {
+    if(supportedOperators.indexOf(char) >= 0) {
       tokens.push({
         kind: TokenKind.Operator,
-        value: '+',
+        value: char,
       });
       current++;
       continue;
@@ -64,7 +66,7 @@ function tokenizer(input: string): Token[] {
       continue;
     }
 
-    throw new Error('Unkown character : ' + char);
+    throw new Error('Unkown character: ' + char);
   }
 
   return tokens;
@@ -105,11 +107,12 @@ function evaluate(ast: Node): string {
     throw new Error(`Invalid ast node: ${ast}`);
   }
 
-  if (ast.operator !== '+') {
+  if (supportedOperators.indexOf(ast.operator) === -1) {
     throw new Error(`Invalid operator: ${ast.operator}`);
   }
 
-  return (ast.left.value + ast.right.value).toString();
+  const expression = `${ast.left.value}${ast.operator}${ast.right.value}`;
+  return (new Function( 'return (' + expression + ')' )());
 }
 
 export default function(input: string): string {
