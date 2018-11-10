@@ -6,17 +6,17 @@ import Home from '../routes/home';
 export default class App extends Component {
   currentUrl: string;
 
-	handleRoute = e => {
-		this.currentUrl = e.url;
-	};
+  handleRoute = e => {
+    this.currentUrl = e.url;
+  };
 
-	render() {
-		return (
-			<div id="app">
-				<Router onChange={this.handleRoute}>
-					<Home path="/" />
-				</Router>
-			</div>
-		);
-	}
+  render() {
+    return (
+      <div id="app">
+        <Router onChange={this.handleRoute}>
+          <Home path="/" />
+        </Router>
+      </div>
+    );
+  }
 }

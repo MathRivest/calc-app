@@ -1,14 +1,16 @@
 import { h } from 'preact';
-import interpreter from '../../interpreter';
+import Interpreter from '../../components/Interpreter'
 
 // TODO support css modules
 const style = require('./style');
 
-const Home = (props: any) => (
-  <div class={style.home}>
-    <h1>Home</h1>
-    <p>{interpreter('1+1')}</p>
-  </div>
-);
+const Home = (_props: any) => {
+  return (
+    <div class={style.home}>
+      <Interpreter value={'2+2'}></Interpreter>
+      <Interpreter value={'5-1'}></Interpreter>
+    </div>
+  )
+};
 
 export default Home;
