@@ -82,14 +82,15 @@ function tokenizer(input: string): Token[] {
   return tokens;
 }
 
-function parser(tokens: Token[]): Node {
+function parser(tokens: Token[]): Node[] {
   let i = 0;
-  function consumeToken(kind: TokenKind): Token {
-    const token = tokens[i];
+  let tree: any[] = [];
+
+  function consumeToken(kind: TokenKind, index: number): Token | null {
+    const token = tokens[index];
     if (token.kind !== kind) {
       throw new Error(`Unexpected token : ${token}`);
     }
-    i++;
     return token;
   }
 
@@ -100,16 +101,22 @@ function parser(tokens: Token[]): Node {
     };
   }
 
-  const left = consumeToken(TokenKind.Number) as NumberToken;
-  const operator = consumeToken(TokenKind.Operator) as OperatorToken;
-  const right = consumeToken(TokenKind.Number) as NumberToken;
-
-  return {
-    kind: NodeKind.BinaryExpression,
-    left: makeNumberLiteral(left),
-    operator: operator.value,
-    right: makeNumberLiteral(right),
-  };
+  while (i <= tokens.length - 3) {
+    try {
+      const left = consumeToken(TokenKind.Number, i) as NumberToken;
+      const operator = consumeToken(TokenKind.Operator, i + 1) as OperatorToken;
+      const right = consumeToken(TokenKind.Number, i + 2) as NumberToken;
+      const newNode = {
+        kind: NodeKind.BinaryExpression,
+        left: makeNumberLiteral(left),
+        operator: operator.value,
+        right: makeNumberLiteral(right),
+      };
+      tree.push(newNode);
+    } catch {}
+    i = i + 1;
+  }
+  return tree;
 }
 
 function evaluate(ast: Node): string {
@@ -142,5 +149,6 @@ function evaluate(ast: Node): string {
 export default function(input: string): string {
   const tokens = tokenizer(input);
   const ast = parser(tokens);
-  return evaluate(ast);
+  console.log(ast);
+  return evaluate(ast[0]);
 }
