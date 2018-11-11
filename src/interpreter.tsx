@@ -1,8 +1,17 @@
 type Token = OperatorToken | NumberToken;
 
+const OperatorsValueEnum = {
+  '+': '+',
+  '-': '-',
+  '*': '*',
+  '/': '/',
+};
+
+type MathOperator = keyof typeof OperatorsValueEnum;
+
 type OperatorToken = {
   kind: TokenKind.Operator;
-  value: string;
+  value: MathOperator;
 };
 
 type NumberToken = {
@@ -31,10 +40,11 @@ type BinaryExpression = {
   kind: NodeKind.BinaryExpression;
   left: NumberLiteral;
   right: NumberLiteral;
-  operator: string;
+  operator: MathOperator;
 };
 
-const supportedOperators = ['+', '-', '*', '/'];
+const isSupportedMathOperator = (char: any): char is MathOperator =>
+  Object.keys(OperatorsValueEnum).indexOf(char) >= 0;
 
 function tokenizer(input: string): Token[] {
   let current = 0;
@@ -44,7 +54,7 @@ function tokenizer(input: string): Token[] {
   while (current < input.length) {
     let char = input[current];
 
-    if(supportedOperators.indexOf(char) >= 0) {
+    if (isSupportedMathOperator(char)) {
       tokens.push({
         kind: TokenKind.Operator,
         value: char,
@@ -107,12 +117,26 @@ function evaluate(ast: Node): string {
     throw new Error(`Invalid ast node: ${ast}`);
   }
 
-  if (supportedOperators.indexOf(ast.operator) === -1) {
+  let expression = '';
+  if (isSupportedMathOperator(ast.operator)) {
+    switch (ast.operator) {
+      case OperatorsValueEnum['+']:
+        expression = (ast.left.value + ast.right.value).toString();
+        break;
+      case OperatorsValueEnum['-']:
+        expression = (ast.left.value - ast.right.value).toString();
+        break;
+      case OperatorsValueEnum['*']:
+        expression = (ast.left.value * ast.right.value).toString();
+        break;
+      case OperatorsValueEnum['/']:
+        expression = (ast.left.value / ast.right.value).toString();
+        break;
+    }
+  } else {
     throw new Error(`Invalid operator: ${ast.operator}`);
   }
-
-  const expression = `${ast.left.value}${ast.operator}${ast.right.value}`;
-  return (new Function( 'return (' + expression + ')' )());
+  return expression;
 }
 
 export default function(input: string): string {
