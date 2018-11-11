@@ -7,7 +7,9 @@
 ## To-Dos
 
 - Prendre une string et supporter mathematiques de base
-- +, -, *, /, white spaces
+- ~~+, -, *, /~~ white spaces
+- Chain operations
+- Parenthesis
 
 ## CLI Commands
 

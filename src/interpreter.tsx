@@ -1,8 +1,17 @@
 type Token = OperatorToken | NumberToken;
 
+const OperatorsValueEnum = {
+  '+': '+',
+  '-': '-',
+  '*': '*',
+  '/': '/',
+};
+
+type MathOperator = keyof typeof OperatorsValueEnum;
+
 type OperatorToken = {
   kind: TokenKind.Operator;
-  value: string;
+  value: MathOperator;
 };
 
 type NumberToken = {
@@ -31,8 +40,11 @@ type BinaryExpression = {
   kind: NodeKind.BinaryExpression;
   left: NumberLiteral;
   right: NumberLiteral;
-  operator: string;
+  operator: MathOperator;
 };
+
+const isSupportedMathOperator = (char: any): char is MathOperator =>
+  Object.keys(OperatorsValueEnum).indexOf(char) >= 0;
 
 function tokenizer(input: string): Token[] {
   let current = 0;
@@ -42,10 +54,10 @@ function tokenizer(input: string): Token[] {
   while (current < input.length) {
     let char = input[current];
 
-    if (char === '+') {
+    if (isSupportedMathOperator(char)) {
       tokens.push({
         kind: TokenKind.Operator,
-        value: '+',
+        value: char,
       });
       current++;
       continue;
@@ -64,7 +76,7 @@ function tokenizer(input: string): Token[] {
       continue;
     }
 
-    throw new Error('Unkown character : ' + char);
+    throw new Error('Unkown character: ' + char);
   }
 
   return tokens;
@@ -105,11 +117,26 @@ function evaluate(ast: Node): string {
     throw new Error(`Invalid ast node: ${ast}`);
   }
 
-  if (ast.operator !== '+') {
+  let expression = '';
+  if (isSupportedMathOperator(ast.operator)) {
+    switch (ast.operator) {
+      case OperatorsValueEnum['+']:
+        expression = (ast.left.value + ast.right.value).toString();
+        break;
+      case OperatorsValueEnum['-']:
+        expression = (ast.left.value - ast.right.value).toString();
+        break;
+      case OperatorsValueEnum['*']:
+        expression = (ast.left.value * ast.right.value).toString();
+        break;
+      case OperatorsValueEnum['/']:
+        expression = (ast.left.value / ast.right.value).toString();
+        break;
+    }
+  } else {
     throw new Error(`Invalid operator: ${ast.operator}`);
   }
-
-  return (ast.left.value + ast.right.value).toString();
+  return expression;
 }
 
 export default function(input: string): string {
