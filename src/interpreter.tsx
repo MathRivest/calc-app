@@ -1,4 +1,4 @@
-type Token = OperatorToken | NumberToken | EOFToken;
+type Token = OperatorToken | NumberToken | EOFToken | PrecedenceToken;
 
 const OperatorsValueEnum = {
   '+': '+',
@@ -23,10 +23,16 @@ type EOFToken = {
   kind: TokenKind.EOF;
 };
 
+type PrecedenceToken = {
+  kind: TokenKind.Precedence;
+  value: string;
+};
+
 enum TokenKind {
   Operator,
   Number,
   EOF,
+  Precedence,
 }
 
 type Node = NumberLiteral | BinaryExpression;
@@ -81,6 +87,13 @@ function tokenizer(input: string): Token[] {
       continue;
     }
 
+    let PRECEDENCE = /\(|\)/;
+    if (PRECEDENCE.test(char)) {
+      tokens.push({ kind: TokenKind.Precedence, value: char });
+      current++;
+      continue;
+    }
+
     throw new Error('Unkown character: ' + char);
   }
 
@@ -99,7 +112,7 @@ function parser(tokens: Token[]): Node {
   function consumeToken(kind: TokenKind): Token {
     const token = tokens[i];
     if (token.kind !== kind) {
-      throw new Error(`Unexpected token : ${token}`);
+      throw new Error(`Unexpected token: ${token}`);
     }
     i++;
     return token;
@@ -197,6 +210,8 @@ function evaluate(ast: Node): string {
 
   return visit(ast);
 }
+
+export { tokenizer, parser };
 
 export default function(input: string): string {
   const tokens = tokenizer(input);

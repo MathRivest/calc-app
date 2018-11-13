@@ -13,6 +13,7 @@ const Home = (_props: any) => {
       <Interpreter value={'100/4'} />
       <Interpreter value={'1*2+3'} />
       <Interpreter value={'1+2*3'} />
+      <Interpreter value={'(1+2)*3'} />
     </div>
   );
 };
