@@ -99,7 +99,7 @@ function parser(tokens: Token[]): Node {
   function consumeToken(kind: TokenKind): Token {
     const token = tokens[i];
     if (token.kind !== kind) {
-      throw new Error(`Unexpected token : ${token}`);
+      throw new Error(`Unexpected token: ${token}`);
     }
     i++;
     return token;
@@ -198,9 +198,10 @@ function evaluate(ast: Node): string {
   return visit(ast);
 }
 
+export { tokenizer, parser };
+
 export default function(input: string): string {
   const tokens = tokenizer(input);
-  console.log(tokens);
   const ast = parser(tokens);
   console.log(ast);
   return evaluate(ast);
