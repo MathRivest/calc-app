@@ -97,7 +97,6 @@ function parser(tokens: Token[]): Node {
   }
 
   function consumeToken(kind: TokenKind): Token {
-    console.log('consuming');
     const token = tokens[i];
     if (token.kind !== kind) {
       throw new Error(`Unexpected token: ${token}`);
@@ -118,7 +117,6 @@ function parser(tokens: Token[]): Node {
     operator: MathOperator,
     right: Node
   ): BinaryExpression {
-    console.log('creating binary expression');
     return {
       kind: NodeKind.BinaryExpression,
       left: left,
@@ -132,7 +130,6 @@ function parser(tokens: Token[]): Node {
   }
 
   function term(): Node {
-    console.log('term');
     let node: Node = factor();
 
     let token = currentToken();
@@ -141,7 +138,6 @@ function parser(tokens: Token[]): Node {
       token.kind === TokenKind.Operator &&
       (token.value === '*' || token.value === '/')
     ) {
-      console.log('term loop');
       const operator = consumeToken(TokenKind.Operator) as OperatorToken;
       node = makeBinaryExpression(node, operator.value, factor());
       token = currentToken();
@@ -151,7 +147,6 @@ function parser(tokens: Token[]): Node {
   }
 
   function expr(): Node {
-    console.log('expr');
     let node: Node = term();
 
     let token = currentToken();
@@ -160,7 +155,6 @@ function parser(tokens: Token[]): Node {
       token.kind === TokenKind.Operator &&
       (token.value === '+' || token.value === '-')
     ) {
-      console.log('expr loop');
       const operator = consumeToken(TokenKind.Operator) as OperatorToken;
       node = makeBinaryExpression(node, operator.value, term());
       token = currentToken();
@@ -208,8 +202,6 @@ export { tokenizer, parser };
 
 export default function(input: string): string {
   const tokens = tokenizer(input);
-  console.log(tokens);
   const ast = parser(tokens);
-  console.log(ast);
   return evaluate(ast);
 }
