@@ -204,6 +204,8 @@ function evaluate(ast: Node): string {
   return visit(ast);
 }
 
+export { tokenizer, parser };
+
 export default function(input: string): string {
   const tokens = tokenizer(input);
   console.log(tokens);

@@ -9,7 +9,9 @@
     "serve": "preact build && preact serve",
     "dev": "preact watch",
     "lint": "eslint src",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:update": "jest --updateSnapshot"
   },
   "eslintConfig": {
     "extends": "eslint-config-synacor"
