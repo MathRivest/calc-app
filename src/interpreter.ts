@@ -113,9 +113,9 @@ function parser(tokens: Token[]): Node {
   }
 
   function makeBinaryExpression(
-    left: Node,
+    left: NumberLiteral | BinaryExpression,
     operator: MathOperator,
-    right: Node
+    right: NumberLiteral | BinaryExpression
   ): BinaryExpression {
     return {
       kind: NodeKind.BinaryExpression,
@@ -129,8 +129,8 @@ function parser(tokens: Token[]): Node {
     return makeNumberLiteral(consumeToken(TokenKind.Number) as NumberToken);
   }
 
-  function term(): Node {
-    let node: Node = factor();
+  function term(): NumberLiteral | BinaryExpression {
+    let node: NumberLiteral | BinaryExpression = factor();
 
     let token = currentToken();
 
@@ -146,8 +146,8 @@ function parser(tokens: Token[]): Node {
     return node;
   }
 
-  function expr(): Node {
-    let node: Node = term();
+  function expr(): NumberLiteral | BinaryExpression {
+    let node: NumberLiteral | BinaryExpression = term();
 
     let token = currentToken();
 
@@ -203,5 +203,6 @@ export { tokenizer, parser };
 export default function(input: string): string {
   const tokens = tokenizer(input);
   const ast = parser(tokens);
+  console.log(ast);
   return evaluate(ast);
 }
