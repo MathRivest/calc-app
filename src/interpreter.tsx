@@ -97,9 +97,10 @@ function parser(tokens: Token[]): Node {
   }
 
   function consumeToken(kind: TokenKind): Token {
+    console.log('consuming');
     const token = tokens[i];
     if (token.kind !== kind) {
-      throw new Error(`Unexpected token : ${token}`);
+      throw new Error(`Unexpected token: ${token}`);
     }
     i++;
     return token;
@@ -113,10 +114,11 @@ function parser(tokens: Token[]): Node {
   }
 
   function makeBinaryExpression(
-    left: NumberLiteral | BinaryExpression,
+    left: Node,
     operator: MathOperator,
-    right: NumberLiteral | BinaryExpression
+    right: Node
   ): BinaryExpression {
+    console.log('creating binary expression');
     return {
       kind: NodeKind.BinaryExpression,
       left: left,
@@ -129,8 +131,9 @@ function parser(tokens: Token[]): Node {
     return makeNumberLiteral(consumeToken(TokenKind.Number) as NumberToken);
   }
 
-  function term(): NumberLiteral | BinaryExpression {
-    let node: NumberLiteral | BinaryExpression = factor();
+  function term(): Node {
+    console.log('term');
+    let node: Node = factor();
 
     let token = currentToken();
 
@@ -138,6 +141,7 @@ function parser(tokens: Token[]): Node {
       token.kind === TokenKind.Operator &&
       (token.value === '*' || token.value === '/')
     ) {
+      console.log('term loop');
       const operator = consumeToken(TokenKind.Operator) as OperatorToken;
       node = makeBinaryExpression(node, operator.value, factor());
       token = currentToken();
@@ -146,8 +150,9 @@ function parser(tokens: Token[]): Node {
     return node;
   }
 
-  function expr(): NumberLiteral | BinaryExpression {
-    let node: NumberLiteral | BinaryExpression = term();
+  function expr(): Node {
+    console.log('expr');
+    let node: Node = term();
 
     let token = currentToken();
 
@@ -155,6 +160,7 @@ function parser(tokens: Token[]): Node {
       token.kind === TokenKind.Operator &&
       (token.value === '+' || token.value === '-')
     ) {
+      console.log('expr loop');
       const operator = consumeToken(TokenKind.Operator) as OperatorToken;
       node = makeBinaryExpression(node, operator.value, term());
       token = currentToken();

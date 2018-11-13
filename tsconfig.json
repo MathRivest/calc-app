@@ -4,15 +4,13 @@
     "target": "es5",
     "module": "esnext",
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "sourceMap": true,
     "jsx": "react",
     "jsxFactory": "h",
     "allowJs": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
-    "lib": [
-      "dom",
-      "es2015"
-    ],
+    "lib": ["dom", "es2015"]
   }
 }
