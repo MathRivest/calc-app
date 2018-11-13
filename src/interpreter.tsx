@@ -1,4 +1,4 @@
-type Token = OperatorToken | NumberToken;
+type Token = OperatorToken | NumberToken | EOFToken;
 
 const OperatorsValueEnum = {
   '+': '+',
@@ -19,9 +19,14 @@ type NumberToken = {
   value: string;
 };
 
+type EOFToken = {
+  kind: TokenKind.EOF;
+};
+
 enum TokenKind {
   Operator,
   Number,
+  EOF,
 }
 
 type Node = NumberLiteral | BinaryExpression;
@@ -38,8 +43,8 @@ type NumberLiteral = {
 
 type BinaryExpression = {
   kind: NodeKind.BinaryExpression;
-  left: NumberLiteral;
-  right: NumberLiteral;
+  left: NumberLiteral | BinaryExpression;
+  right: NumberLiteral | BinaryExpression;
   operator: MathOperator;
 };
 
@@ -79,11 +84,18 @@ function tokenizer(input: string): Token[] {
     throw new Error('Unkown character: ' + char);
   }
 
+  tokens.push({ kind: TokenKind.EOF });
+
   return tokens;
 }
 
 function parser(tokens: Token[]): Node {
   let i = 0;
+
+  function currentToken(): Token {
+    return tokens[i];
+  }
+
   function consumeToken(kind: TokenKind): Token {
     const token = tokens[i];
     if (token.kind !== kind) {
@@ -100,47 +112,96 @@ function parser(tokens: Token[]): Node {
     };
   }
 
-  const left = consumeToken(TokenKind.Number) as NumberToken;
-  const operator = consumeToken(TokenKind.Operator) as OperatorToken;
-  const right = consumeToken(TokenKind.Number) as NumberToken;
+  function makeBinaryExpression(
+    left: NumberLiteral | BinaryExpression,
+    operator: MathOperator,
+    right: NumberLiteral | BinaryExpression
+  ): BinaryExpression {
+    return {
+      kind: NodeKind.BinaryExpression,
+      left: left,
+      operator: operator,
+      right: right,
+    };
+  }
 
-  return {
-    kind: NodeKind.BinaryExpression,
-    left: makeNumberLiteral(left),
-    operator: operator.value,
-    right: makeNumberLiteral(right),
-  };
+  function factor(): NumberLiteral {
+    return makeNumberLiteral(consumeToken(TokenKind.Number) as NumberToken);
+  }
+
+  function term(): NumberLiteral | BinaryExpression {
+    let node: NumberLiteral | BinaryExpression = factor();
+
+    let token = currentToken();
+
+    while (
+      token.kind === TokenKind.Operator &&
+      (token.value === '*' || token.value === '/')
+    ) {
+      const operator = consumeToken(TokenKind.Operator) as OperatorToken;
+      node = makeBinaryExpression(node, operator.value, factor());
+      token = currentToken();
+    }
+
+    return node;
+  }
+
+  function expr(): NumberLiteral | BinaryExpression {
+    let node: NumberLiteral | BinaryExpression = term();
+
+    let token = currentToken();
+
+    while (
+      token.kind === TokenKind.Operator &&
+      (token.value === '+' || token.value === '-')
+    ) {
+      const operator = consumeToken(TokenKind.Operator) as OperatorToken;
+      node = makeBinaryExpression(node, operator.value, term());
+      token = currentToken();
+    }
+
+    return node;
+  }
+
+  return expr();
 }
 
 function evaluate(ast: Node): string {
-  if (ast.kind !== NodeKind.BinaryExpression) {
-    throw new Error(`Invalid ast node: ${ast}`);
+  function visit(node: NumberLiteral | BinaryExpression) {
+    switch (node.kind) {
+      case NodeKind.BinaryExpression:
+        return visitBinaryExpression(node);
+      case NodeKind.NumberLiteral:
+        return visitNumberLiteral(node);
+      default:
+        throw new Error(`Unexpected node kind: ${node}`);
+    }
   }
 
-  let expression = '';
-  if (isSupportedMathOperator(ast.operator)) {
-    switch (ast.operator) {
-      case OperatorsValueEnum['+']:
-        expression = (ast.left.value + ast.right.value).toString();
-        break;
-      case OperatorsValueEnum['-']:
-        expression = (ast.left.value - ast.right.value).toString();
-        break;
-      case OperatorsValueEnum['*']:
-        expression = (ast.left.value * ast.right.value).toString();
-        break;
-      case OperatorsValueEnum['/']:
-        expression = (ast.left.value / ast.right.value).toString();
-        break;
+  function visitBinaryExpression(node: BinaryExpression) {
+    switch (node.operator) {
+      case '+':
+        return visit(node.left) + visit(node.right);
+      case '-':
+        return visit(node.left) - visit(node.right);
+      case '*':
+        return visit(node.left) * visit(node.right);
+      case '/':
+        return visit(node.left) / visit(node.right);
     }
-  } else {
-    throw new Error(`Invalid operator: ${ast.operator}`);
   }
-  return expression;
+
+  function visitNumberLiteral(node: NumberLiteral) {
+    return node.value;
+  }
+
+  return visit(ast);
 }
 
 export default function(input: string): string {
   const tokens = tokenizer(input);
+  console.log(tokens);
   const ast = parser(tokens);
+  console.log(ast);
   return evaluate(ast);
 }
