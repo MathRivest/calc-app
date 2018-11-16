@@ -155,15 +155,13 @@ function parser(tokens: Token[]): Node {
     let token = currentToken();
     if (token.kind === TokenKind.Number) {
       return makeNumberLiteral(consumeToken(TokenKind.Number) as NumberToken);
-    } else if (
-      token.kind === TokenKind.LPrecedence ||
-      token.kind === TokenKind.RPrecedence
-    ) {
+    } else if (token.kind === TokenKind.LPrecedence) {
       consumeToken(TokenKind.LPrecedence) as LPrecedenceToken;
+      let node = expr();
+      consumeToken(TokenKind.RPrecedence) as RPrecedenceToken;
+      return node;
     }
-    let node = expr();
-    consumeToken(TokenKind.RPrecedence) as RPrecedenceToken;
-    return node;
+    throw Error(`Unexpected token : ${token}`);
   }
 
   function term(): NumberLiteral | BinaryExpression {
