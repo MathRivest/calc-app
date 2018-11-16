@@ -24,7 +24,7 @@ type EOFToken = {
 };
 
 type PrecedenceToken = {
-  kind: TokenKind.Precedence;
+  kind: TokenKind.LPrecedence | TokenKind.RPrecedence;
   value: string;
 };
 
@@ -32,7 +32,8 @@ enum TokenKind {
   Operator,
   Number,
   EOF,
-  Precedence,
+  LPrecedence,
+  RPrecedence,
 }
 
 type Node = NumberLiteral | BinaryExpression;
@@ -89,7 +90,8 @@ function tokenizer(input: string): Token[] {
 
     let PRECEDENCE = /\(|\)/;
     if (PRECEDENCE.test(char)) {
-      tokens.push({ kind: TokenKind.Precedence, value: char });
+      const kind = char === '(' ? TokenKind.LPrecedence : TokenKind.RPrecedence;
+      tokens.push({ kind, value: char });
       current++;
       continue;
     }
@@ -142,11 +144,14 @@ function parser(tokens: Token[]): Node {
     let token = currentToken();
     if (token.kind === TokenKind.Number) {
       return makeNumberLiteral(consumeToken(TokenKind.Number) as NumberToken);
-    } else if (token.kind === TokenKind.Precedence && token.value === '(') {
-      consumeToken(TokenKind.Precedence) as PrecedenceToken;
+    } else if (
+      token.kind === TokenKind.LPrecedence ||
+      token.kind === TokenKind.RPrecedence
+    ) {
+      consumeToken(TokenKind.LPrecedence) as PrecedenceToken;
     }
     let node = expr();
-    consumeToken(TokenKind.Precedence) as PrecedenceToken;
+    consumeToken(TokenKind.RPrecedence) as PrecedenceToken;
     return node;
   }
 
