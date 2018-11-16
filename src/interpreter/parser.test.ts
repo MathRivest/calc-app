@@ -29,3 +29,8 @@ test('should match multiplication and addition snapshot', () => {
   const ast = parser(tokenizer('1+2*2'));
   expect(ast).toMatchSnapshot();
 });
+
+test('should match precedence snapshot', () => {
+  const ast = parser(tokenizer('(1+2)*2'));
+  expect(ast).toMatchSnapshot();
+});

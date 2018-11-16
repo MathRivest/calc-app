@@ -91,6 +91,29 @@ Object {
 }
 `;
 
+exports[`should match precedence snapshot 1`] = `
+Object {
+  "kind": 1,
+  "left": Object {
+    "kind": 1,
+    "left": Object {
+      "kind": 0,
+      "value": 1,
+    },
+    "operator": "+",
+    "right": Object {
+      "kind": 0,
+      "value": 2,
+    },
+  },
+  "operator": "*",
+  "right": Object {
+    "kind": 0,
+    "value": 2,
+  },
+}
+`;
+
 exports[`should match substraction snapshot 1`] = `
 Object {
   "kind": 1,

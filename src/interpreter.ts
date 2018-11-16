@@ -1,4 +1,9 @@
-type Token = OperatorToken | NumberToken | EOFToken;
+type Token =
+  | OperatorToken
+  | NumberToken
+  | EOFToken
+  | LPrecedenceToken
+  | RPrecedenceToken;
 
 const OperatorsValueEnum = {
   '+': '+',
@@ -23,10 +28,20 @@ type EOFToken = {
   kind: TokenKind.EOF;
 };
 
+type LPrecedenceToken = {
+  kind: TokenKind.LPrecedence;
+};
+
+type RPrecedenceToken = {
+  kind: TokenKind.RPrecedence;
+};
+
 enum TokenKind {
   Operator,
   Number,
   EOF,
+  LPrecedence,
+  RPrecedence,
 }
 
 type Node = NumberLiteral | BinaryExpression;
@@ -81,11 +96,22 @@ function tokenizer(input: string): Token[] {
       continue;
     }
 
+    if (char === '(') {
+      tokens.push({ kind: TokenKind.LPrecedence });
+      current++;
+      continue;
+    }
+
+    if (char === ')') {
+      tokens.push({ kind: TokenKind.RPrecedence });
+      current++;
+      continue;
+    }
+
     throw new Error('Unkown character: ' + char);
   }
 
   tokens.push({ kind: TokenKind.EOF });
-
   return tokens;
 }
 
@@ -125,8 +151,17 @@ function parser(tokens: Token[]): Node {
     };
   }
 
-  function factor(): NumberLiteral {
-    return makeNumberLiteral(consumeToken(TokenKind.Number) as NumberToken);
+  function factor(): NumberLiteral | BinaryExpression {
+    let token = currentToken();
+    if (token.kind === TokenKind.Number) {
+      return makeNumberLiteral(consumeToken(TokenKind.Number) as NumberToken);
+    } else if (token.kind === TokenKind.LPrecedence) {
+      consumeToken(TokenKind.LPrecedence) as LPrecedenceToken;
+      let node = expr();
+      consumeToken(TokenKind.RPrecedence) as RPrecedenceToken;
+      return node;
+    }
+    throw Error(`Unexpected token : ${token}`);
   }
 
   function term(): NumberLiteral | BinaryExpression {
@@ -203,6 +238,5 @@ export { tokenizer, parser };
 export default function(input: string): string {
   const tokens = tokenizer(input);
   const ast = parser(tokens);
-  console.log(ast);
   return evaluate(ast);
 }
