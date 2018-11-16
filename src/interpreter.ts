@@ -1,4 +1,9 @@
-type Token = OperatorToken | NumberToken | EOFToken | PrecedenceToken;
+type Token =
+  | OperatorToken
+  | NumberToken
+  | EOFToken
+  | LPrecedenceToken
+  | RPrecedenceToken;
 
 const OperatorsValueEnum = {
   '+': '+',
@@ -23,9 +28,12 @@ type EOFToken = {
   kind: TokenKind.EOF;
 };
 
-type PrecedenceToken = {
-  kind: TokenKind.LPrecedence | TokenKind.RPrecedence;
-  value: string;
+type LPrecedenceToken = {
+  kind: TokenKind.LPrecedence;
+};
+
+type RPrecedenceToken = {
+  kind: TokenKind.RPrecedence;
 };
 
 enum TokenKind {
@@ -88,10 +96,14 @@ function tokenizer(input: string): Token[] {
       continue;
     }
 
-    let PRECEDENCE = /\(|\)/;
-    if (PRECEDENCE.test(char)) {
-      const kind = char === '(' ? TokenKind.LPrecedence : TokenKind.RPrecedence;
-      tokens.push({ kind, value: char });
+    if (char === '(') {
+      tokens.push({ kind: TokenKind.LPrecedence });
+      current++;
+      continue;
+    }
+
+    if (char === ')') {
+      tokens.push({ kind: TokenKind.RPrecedence });
       current++;
       continue;
     }
@@ -100,7 +112,6 @@ function tokenizer(input: string): Token[] {
   }
 
   tokens.push({ kind: TokenKind.EOF });
-
   return tokens;
 }
 
@@ -148,10 +159,10 @@ function parser(tokens: Token[]): Node {
       token.kind === TokenKind.LPrecedence ||
       token.kind === TokenKind.RPrecedence
     ) {
-      consumeToken(TokenKind.LPrecedence) as PrecedenceToken;
+      consumeToken(TokenKind.LPrecedence) as LPrecedenceToken;
     }
     let node = expr();
-    consumeToken(TokenKind.RPrecedence) as PrecedenceToken;
+    consumeToken(TokenKind.RPrecedence) as RPrecedenceToken;
     return node;
   }
 
