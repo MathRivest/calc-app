@@ -1,4 +1,4 @@
-import { tokenizer, parser } from '../interpreter';
+import { tokenizer, parser } from './interpreter';
 
 test('should match addition snapshot', () => {
   const ast = parser(tokenizer('1+2'));

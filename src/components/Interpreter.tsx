@@ -1,13 +1,17 @@
 import { h } from 'preact';
-import interpreter from '../interpreter';
+import interpreter from '../interpreter/interpreter';
 
 export default ({ value }: { value: string }) => {
   let results;
   try {
     results = interpreter(value);
-  } catch(error) {
-    console.log(error)
+  } catch (error) {
+    console.log(error);
     results = 'Nope';
   }
-  return <div>{value} = {results}</div>;
+  return (
+    <div>
+      {value} = {results}
+    </div>
+  );
 };
