@@ -224,6 +224,5 @@ export { tokenizer, parser };
 export default function(input: string): string {
   const tokens = tokenizer(input);
   const ast = parser(tokens);
-  console.log(ast);
   return evaluate(ast);
 }
