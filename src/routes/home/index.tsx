@@ -14,6 +14,8 @@ const Home = (_props: any) => {
       <Interpreter value={'1*2+3'} />
       <Interpreter value={'1+2*3'} />
       <Interpreter value={'(1+2)*3'} />
+      <Interpreter value={'1*(1+2)*3+(1+2+3)'} />
+      <Interpreter value={')1+2)*3'} />
     </div>
   );
 };

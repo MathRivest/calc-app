@@ -138,8 +138,16 @@ function parser(tokens: Token[]): Node {
     };
   }
 
-  function factor(): NumberLiteral {
-    return makeNumberLiteral(consumeToken(TokenKind.Number) as NumberToken);
+  function factor(): NumberLiteral | BinaryExpression {
+    let token = currentToken();
+    if (token.kind === TokenKind.Number) {
+      return makeNumberLiteral(consumeToken(TokenKind.Number) as NumberToken);
+    } else if (token.kind === TokenKind.Precedence && token.value === '(') {
+      consumeToken(TokenKind.Precedence) as PrecedenceToken;
+    }
+    let node = expr();
+    consumeToken(TokenKind.Precedence) as PrecedenceToken;
+    return node;
   }
 
   function term(): NumberLiteral | BinaryExpression {
