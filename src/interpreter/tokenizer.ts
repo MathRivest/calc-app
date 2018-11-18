@@ -11,6 +11,7 @@ export enum SyntaxKind {
   MinusToken,
   AsteriskToken,
   SlashToken,
+  CaretToken,
 }
 
 export interface NumberToken extends Token {
@@ -25,6 +26,7 @@ const simpleCharToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
   ['/', SyntaxKind.SlashToken],
   ['(', SyntaxKind.LPrecedence],
   [')', SyntaxKind.RPrecedence],
+  ['^', SyntaxKind.CaretToken],
 ]);
 
 function isDigit(char: string) {

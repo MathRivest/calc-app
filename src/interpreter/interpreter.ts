@@ -33,6 +33,8 @@ function evaluate(ast: Node): string {
         return visit(node.left) * visit(node.right);
       case '/':
         return visit(node.left) / visit(node.right);
+      case '^':
+        return Math.pow(visit(node.left), visit(node.right));
     }
   }
 

@@ -23,3 +23,9 @@ test('parenthesis', () => {
 test('unary plus and minus', () => {
   expect(interpreter('-(10-2)+(+3)')).toBe('-5');
 });
+
+test('exponent', () => {
+  expect(interpreter('2^3')).toBe('8');
+  expect(interpreter('2^3^4')).toBe('4096');
+  expect(interpreter('2*2^3')).toBe('16');
+});
