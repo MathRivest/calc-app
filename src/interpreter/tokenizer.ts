@@ -53,9 +53,9 @@ export default function tokenizer(input: string): Token[] {
         char = input[++current];
       }
       tokens.push({ kind: SyntaxKind.Number, value } as NumberToken);
+    } else {
+      throw new Error('Unkown character: ' + char);
     }
-
-    throw new Error('Unkown character: ' + char);
   }
 
   tokens.push({ kind: SyntaxKind.EOF });

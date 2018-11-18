@@ -4,11 +4,16 @@ import parser, {
   BinaryExpression,
   NodeKind,
   Node,
+  Expression,
 } from './parser';
 
 function evaluate(ast: Node): string {
-  function visit(node: NumberLiteral | BinaryExpression) {
+  function visit(node: Expression) {
     switch (node.kind) {
+      case NodeKind.UnaryPlus:
+        return visit(node.expression);
+      case NodeKind.UnaryMinus:
+        return -visit(node.expression);
       case NodeKind.BinaryExpression:
         return visitBinaryExpression(node);
       case NodeKind.NumberLiteral:
