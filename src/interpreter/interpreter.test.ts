@@ -29,3 +29,7 @@ test('exponent', () => {
   expect(interpreter('2^3^4')).toBe('4096');
   expect(interpreter('2*2^3')).toBe('16');
 });
+
+test('white space', () => {
+  expect(interpreter('  ( 2 + 3 )  ')).toBe('5');
+});
