@@ -1,51 +1,31 @@
-export type Token =
-  | OperatorToken
-  | NumberToken
-  | EOFToken
-  | LPrecedenceToken
-  | RPrecedenceToken;
+export interface Token {
+  kind: SyntaxKind;
+}
 
-export enum TokenKind {
-  Operator,
+export enum SyntaxKind {
   Number,
   EOF,
   LPrecedence,
   RPrecedence,
+  PlusToken,
+  MinusToken,
+  AsteriskToken,
+  SlashToken,
 }
 
-export type OperatorToken = {
-  kind: TokenKind.Operator;
-  value: '+' | '-' | '*' | '/';
-};
-
-export type NumberToken = {
-  kind: TokenKind.Number;
+export interface NumberToken extends Token {
+  kind: SyntaxKind.Number;
   value: string;
-};
+}
 
-export type EOFToken = {
-  kind: TokenKind.EOF;
-};
-
-export type LPrecedenceToken = {
-  kind: TokenKind.LPrecedence;
-};
-
-export type RPrecedenceToken = {
-  kind: TokenKind.RPrecedence;
-};
-
-const OperatorsValueEnum = {
-  '+': '+',
-  '-': '-',
-  '*': '*',
-  '/': '/',
-};
-
-type MathOperator = keyof typeof OperatorsValueEnum;
-
-const isSupportedMathOperator = (char: any): char is MathOperator =>
-  Object.keys(OperatorsValueEnum).indexOf(char) >= 0;
+const simpleCharToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
+  ['+', SyntaxKind.PlusToken],
+  ['-', SyntaxKind.MinusToken],
+  ['*', SyntaxKind.AsteriskToken],
+  ['/', SyntaxKind.SlashToken],
+  ['(', SyntaxKind.LPrecedence],
+  [')', SyntaxKind.RPrecedence],
+]);
 
 export default function tokenizer(input: string): Token[] {
   let current = 0;
@@ -55,10 +35,10 @@ export default function tokenizer(input: string): Token[] {
   while (current < input.length) {
     let char = input[current];
 
-    if (isSupportedMathOperator(char)) {
+    let syntaxKind = simpleCharToSyntaxKindMap.get(char);
+    if (syntaxKind !== undefined) {
       tokens.push({
-        kind: TokenKind.Operator,
-        value: char,
+        kind: syntaxKind,
       });
       current++;
       continue;
@@ -73,25 +53,13 @@ export default function tokenizer(input: string): Token[] {
         char = input[++current];
       }
 
-      tokens.push({ kind: TokenKind.Number, value });
-      continue;
-    }
-
-    if (char === '(') {
-      tokens.push({ kind: TokenKind.LPrecedence });
-      current++;
-      continue;
-    }
-
-    if (char === ')') {
-      tokens.push({ kind: TokenKind.RPrecedence });
-      current++;
+      tokens.push({ kind: SyntaxKind.Number, value } as NumberToken);
       continue;
     }
 
     throw new Error('Unkown character: ' + char);
   }
 
-  tokens.push({ kind: TokenKind.EOF });
+  tokens.push({ kind: SyntaxKind.EOF });
   return tokens;
 }

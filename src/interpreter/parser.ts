@@ -1,11 +1,4 @@
-import {
-  Token,
-  TokenKind,
-  NumberToken,
-  LPrecedenceToken,
-  RPrecedenceToken,
-  OperatorToken,
-} from './tokenizer';
+import { Token, SyntaxKind, NumberToken } from './tokenizer';
 
 export type Node = NumberLiteral | BinaryExpression;
 
@@ -25,7 +18,7 @@ export type BinaryExpression = {
   kind: NodeKind.BinaryExpression;
   left: NumberLiteral | BinaryExpression;
   right: NumberLiteral | BinaryExpression;
-  operator: '+' | '-' | '*' | '/';
+  operator: MathOperator;
 };
 
 export default function parser(tokens: Token[]): Node {
@@ -35,7 +28,7 @@ export default function parser(tokens: Token[]): Node {
     return tokens[i];
   }
 
-  function consumeToken(kind: TokenKind): Token {
+  function consumeToken(kind: SyntaxKind): Token {
     const token = tokens[i];
     if (token.kind !== kind) {
       throw new Error(`Unexpected token: ${token}`);
@@ -66,12 +59,12 @@ export default function parser(tokens: Token[]): Node {
 
   function factor(): NumberLiteral | BinaryExpression {
     let token = currentToken();
-    if (token.kind === TokenKind.Number) {
-      return makeNumberLiteral(consumeToken(TokenKind.Number) as NumberToken);
-    } else if (token.kind === TokenKind.LPrecedence) {
-      consumeToken(TokenKind.LPrecedence) as LPrecedenceToken;
+    if (token.kind === SyntaxKind.Number) {
+      return makeNumberLiteral(consumeToken(SyntaxKind.Number) as NumberToken);
+    } else if (token.kind === SyntaxKind.LPrecedence) {
+      consumeToken(SyntaxKind.LPrecedence);
       let node = expr();
-      consumeToken(TokenKind.RPrecedence) as RPrecedenceToken;
+      consumeToken(SyntaxKind.RPrecedence);
       return node;
     }
     throw Error(`Unexpected token : ${token}`);
@@ -82,12 +75,16 @@ export default function parser(tokens: Token[]): Node {
 
     let token = currentToken();
 
-    while (
-      token.kind === TokenKind.Operator &&
-      (token.value === '*' || token.value === '/')
-    ) {
-      const operator = consumeToken(TokenKind.Operator) as OperatorToken;
-      node = makeBinaryExpression(node, operator.value, factor());
+    while (true) {
+      if (token.kind === SyntaxKind.AsteriskToken) {
+        consumeToken(SyntaxKind.AsteriskToken);
+        node = makeBinaryExpression(node, '*', factor());
+      } else if (token.kind === SyntaxKind.SlashToken) {
+        consumeToken(SyntaxKind.SlashToken);
+        node = makeBinaryExpression(node, '/', factor());
+      } else {
+        break;
+      }
       token = currentToken();
     }
 
@@ -99,12 +96,16 @@ export default function parser(tokens: Token[]): Node {
 
     let token = currentToken();
 
-    while (
-      token.kind === TokenKind.Operator &&
-      (token.value === '+' || token.value === '-')
-    ) {
-      const operator = consumeToken(TokenKind.Operator) as OperatorToken;
-      node = makeBinaryExpression(node, operator.value, term());
+    while (true) {
+      if (token.kind === SyntaxKind.PlusToken) {
+        consumeToken(SyntaxKind.PlusToken);
+        node = makeBinaryExpression(node, '+', term());
+      } else if (token.kind === SyntaxKind.MinusToken) {
+        consumeToken(SyntaxKind.MinusToken);
+        node = makeBinaryExpression(node, '-', term());
+      } else {
+        break;
+      }
       token = currentToken();
     }
 
