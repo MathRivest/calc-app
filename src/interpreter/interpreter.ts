@@ -40,7 +40,7 @@ function evaluate(ast: Node): string {
     return node.value;
   }
 
-  return visit(ast);
+  return visit(ast).toString();
 }
 
 export default function(input: string): string {
