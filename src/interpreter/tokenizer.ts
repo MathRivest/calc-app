@@ -27,6 +27,11 @@ const simpleCharToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
   [')', SyntaxKind.RPrecedence],
 ]);
 
+function isDigit(char: string) {
+  const NUMBERS = /[0-9]/;
+  return NUMBERS.test(char);
+}
+
 export default function tokenizer(input: string): Token[] {
   let current = 0;
 
@@ -41,20 +46,13 @@ export default function tokenizer(input: string): Token[] {
         kind: syntaxKind,
       });
       current++;
-      continue;
-    }
-
-    let NUMBERS = /[0-9]/;
-    if (NUMBERS.test(char)) {
+    } else if (isDigit(char)) {
       let value = '';
-
-      while (NUMBERS.test(char)) {
+      while (isDigit(char)) {
         value += char;
         char = input[++current];
       }
-
       tokens.push({ kind: SyntaxKind.Number, value } as NumberToken);
-      continue;
     }
 
     throw new Error('Unkown character: ' + char);
