@@ -33,3 +33,13 @@ test('exponent', () => {
 test('white space', () => {
   expect(interpreter('  ( 2 + 3 )  ')).toBe('5');
 });
+
+test('plus', () => {
+  expect(interpreter('1plus2')).toBe('3');
+  expect(interpreter('1 plus 2')).toBe('3');
+});
+
+// Todo: Handle composite keywords
+test.skip('divide by', () => {
+  expect(interpreter('4 divide by 2')).toBe('2');
+});
