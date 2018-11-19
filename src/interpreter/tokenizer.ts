@@ -29,9 +29,54 @@ const simpleCharToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
   ['^', SyntaxKind.CaretToken],
 ]);
 
+const keywordToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
+  ['plus', SyntaxKind.PlusToken],
+  ['and', SyntaxKind.PlusToken],
+  ['with', SyntaxKind.PlusToken],
+  ['minus', SyntaxKind.MinusToken],
+  ['substract', SyntaxKind.MinusToken],
+  ['without', SyntaxKind.MinusToken],
+  ['times', SyntaxKind.AsteriskToken],
+  ['mul', SyntaxKind.AsteriskToken],
+  ['divide', SyntaxKind.SlashToken],
+]);
+
 function isDigit(char: string) {
   const NUMBERS = /[0-9]/;
   return NUMBERS.test(char);
+}
+
+function isLetter(char: string) {
+  const code = char.charCodeAt(0);
+  return (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+}
+
+function extractNextKeyword(input: string, current: number): string {
+  let keyword = '';
+  while (isLetter(input[current])) {
+    keyword += input[current];
+    current++;
+  }
+  return keyword;
+}
+
+function getNextSyntaxKindMatchingKeyword(
+  input: string,
+  current: number
+): SyntaxKind {
+  let keyword = '';
+
+  while (isLetter(input[current])) {
+    keyword += input[current];
+    current++;
+  }
+
+  const syntaxKind = keywordToSyntaxKindMap.get(keyword);
+  if (syntaxKind === undefined) {
+    throw new Error(`Invalid keyword : ${keyword}`);
+  }
+
+  return syntaxKind;
 }
 
 export default function tokenizer(input: string): Token[] {
@@ -55,6 +100,14 @@ export default function tokenizer(input: string): Token[] {
         char = input[++current];
       }
       tokens.push({ kind: SyntaxKind.Number, value } as NumberToken);
+    } else if (isLetter(char)) {
+      const keyword = extractNextKeyword(input, current);
+      const syntaxKind = keywordToSyntaxKindMap.get(keyword);
+      if (syntaxKind === undefined) {
+        throw new Error(`Invalid keyword : ${keyword}`);
+      }
+      current += keyword.length;
+      tokens.push({ kind: syntaxKind });
     } else if (char == ' ') {
       current++;
     } else {
