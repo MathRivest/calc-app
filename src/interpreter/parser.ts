@@ -2,7 +2,7 @@ import { Token, SyntaxKind, NumberToken } from './tokenizer';
 
 export type Node = Expression;
 
-type MathOperator = '+' | '-' | '*' | '/';
+type MathOperator = '+' | '-' | '*' | '/' | '^';
 
 export enum NodeKind {
   NumberLiteral,
@@ -94,18 +94,36 @@ export default function parser(tokens: Token[]): Node {
     throw Error(`Unexpected token : ${token}`);
   }
 
-  function term(): Expression {
+  function exponent(): Expression {
     let node: Expression = factor();
+
+    let token = currentToken();
+
+    while (true) {
+      if (token.kind === SyntaxKind.CaretToken) {
+        consumeToken(SyntaxKind.CaretToken);
+        node = makeBinaryExpression(node, '^', factor());
+      } else {
+        break;
+      }
+      token = currentToken();
+    }
+
+    return node;
+  }
+
+  function term(): Expression {
+    let node: Expression = exponent();
 
     let token = currentToken();
 
     while (true) {
       if (token.kind === SyntaxKind.AsteriskToken) {
         consumeToken(SyntaxKind.AsteriskToken);
-        node = makeBinaryExpression(node, '*', factor());
+        node = makeBinaryExpression(node, '*', exponent());
       } else if (token.kind === SyntaxKind.SlashToken) {
         consumeToken(SyntaxKind.SlashToken);
-        node = makeBinaryExpression(node, '/', factor());
+        node = makeBinaryExpression(node, '/', exponent());
       } else {
         break;
       }

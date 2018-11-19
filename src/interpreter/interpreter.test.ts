@@ -23,3 +23,23 @@ test('parenthesis', () => {
 test('unary plus and minus', () => {
   expect(interpreter('-(10-2)+(+3)')).toBe('-5');
 });
+
+test('exponent', () => {
+  expect(interpreter('2^3')).toBe('8');
+  expect(interpreter('2^3^4')).toBe('4096');
+  expect(interpreter('2*2^3')).toBe('16');
+});
+
+test('white space', () => {
+  expect(interpreter('  ( 2 + 3 )  ')).toBe('5');
+});
+
+test('plus', () => {
+  expect(interpreter('1plus2')).toBe('3');
+  expect(interpreter('1 plus 2')).toBe('3');
+});
+
+// Todo: Handle composite keywords
+test.skip('divide by', () => {
+  expect(interpreter('4 divide by 2')).toBe('2');
+});
