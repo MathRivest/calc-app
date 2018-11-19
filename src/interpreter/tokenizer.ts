@@ -60,25 +60,6 @@ function extractNextKeyword(input: string, current: number): string {
   return keyword;
 }
 
-function getNextSyntaxKindMatchingKeyword(
-  input: string,
-  current: number
-): SyntaxKind {
-  let keyword = '';
-
-  while (isLetter(input[current])) {
-    keyword += input[current];
-    current++;
-  }
-
-  const syntaxKind = keywordToSyntaxKindMap.get(keyword);
-  if (syntaxKind === undefined) {
-    throw new Error(`Invalid keyword : ${keyword}`);
-  }
-
-  return syntaxKind;
-}
-
 export default function tokenizer(input: string): Token[] {
   let current = 0;
 
