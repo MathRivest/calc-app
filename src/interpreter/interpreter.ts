@@ -4,11 +4,16 @@ import parser, {
   BinaryExpression,
   NodeKind,
   Node,
+  Expression,
 } from './parser';
 
 function evaluate(ast: Node): string {
-  function visit(node: NumberLiteral | BinaryExpression) {
+  function visit(node: Expression) {
     switch (node.kind) {
+      case NodeKind.UnaryPlus:
+        return visit(node.expression);
+      case NodeKind.UnaryMinus:
+        return -visit(node.expression);
       case NodeKind.BinaryExpression:
         return visitBinaryExpression(node);
       case NodeKind.NumberLiteral:
@@ -28,6 +33,8 @@ function evaluate(ast: Node): string {
         return visit(node.left) * visit(node.right);
       case '/':
         return visit(node.left) / visit(node.right);
+      case '^':
+        return Math.pow(visit(node.left), visit(node.right));
     }
   }
 
@@ -35,7 +42,7 @@ function evaluate(ast: Node): string {
     return node.value;
   }
 
-  return visit(ast);
+  return visit(ast).toString();
 }
 
 export default function(input: string): string {
