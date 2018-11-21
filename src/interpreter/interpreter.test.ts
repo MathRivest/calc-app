@@ -44,11 +44,13 @@ test.skip('divide by', () => {
   expect(interpreter('4 divide by 2')).toBe('2');
 });
 
-describe('binary', () => {
-  test('number to binary', () =>
+describe('representation', () => {
+  test('decimal to binary', () =>
     expect(interpreter('5 in binary')).toBe('0b101'));
   test('expression to binary', () =>
     expect(interpreter('1+2+3 in binary')).toBe('0b110'));
-  test('number representation propagation', () =>
+  test('propagation', () =>
     expect(interpreter('1 in binary + 6')).toBe('0b111'));
+  test.skip('binary to decimal', () =>
+    expect(interpreter('0b101 in decimal')).toBe('5'));
 });
