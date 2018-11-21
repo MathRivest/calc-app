@@ -101,15 +101,34 @@ export default function parser(tokens: Token[]): Node {
     throw Error(`Unexpected token : ${token}`);
   }
 
-  function exponent(): Expression {
+  function conversion() {
     let node: Expression = factor();
+
+    if (currentToken().kind === SyntaxKind.In) {
+      consumeToken(SyntaxKind.In);
+
+      if (currentToken().kind === SyntaxKind.Binary) {
+        consumeToken(SyntaxKind.Binary);
+        node = {
+          kind: NodeKind.ConvertToBinaryNumber,
+          expression: node,
+        };
+      } else {
+        throw new Error(`Can't extract unit from token ${currentToken()}`);
+      }
+    }
+    return node;
+  }
+
+  function exponent(): Expression {
+    let node: Expression = conversion();
 
     let token = currentToken();
 
     while (true) {
       if (token.kind === SyntaxKind.CaretToken) {
         consumeToken(SyntaxKind.CaretToken);
-        node = makeBinaryExpression(node, '^', factor());
+        node = makeBinaryExpression(node, '^', conversion());
       } else {
         break;
       }
@@ -161,25 +180,5 @@ export default function parser(tokens: Token[]): Node {
     return node;
   }
 
-  function conversion() {
-    let node: Expression = expr();
-
-    if (currentToken().kind === SyntaxKind.In) {
-      consumeToken(SyntaxKind.In);
-
-      if (currentToken().kind === SyntaxKind.Binary) {
-        consumeToken(SyntaxKind.Binary);
-        node = {
-          kind: NodeKind.ConvertToBinaryNumber,
-          expression: node,
-        };
-      } else {
-        throw new Error(`Can't extract unit from token ${currentToken()}`);
-      }
-    }
-
-    return node;
-  }
-
-  return conversion();
+  return expr();
 }
