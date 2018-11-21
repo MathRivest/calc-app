@@ -18,6 +18,8 @@ function evaluate(ast: Node): string {
         return visitBinaryExpression(node);
       case NodeKind.NumberLiteral:
         return visitNumberLiteral(node);
+      case NodeKind.ConvertToBinaryNumber:
+        return '0b' + visit(node.expression).toString(2);
       default:
         throw new Error(`Unexpected node kind: ${node}`);
     }

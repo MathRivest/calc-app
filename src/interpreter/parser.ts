@@ -9,13 +9,15 @@ export enum NodeKind {
   BinaryExpression,
   UnaryPlus,
   UnaryMinus,
+  ConvertToBinaryNumber,
 }
 
 export type Expression =
   | NumberLiteral
   | UnaryMinus
   | UnaryPlus
-  | BinaryExpression;
+  | BinaryExpression
+  | ConvertToBinaryNumber;
 
 export type NumberLiteral = {
   kind: NodeKind.NumberLiteral;
@@ -37,6 +39,11 @@ export type BinaryExpression = {
   left: Expression;
   right: Expression;
   operator: MathOperator;
+};
+
+export type ConvertToBinaryNumber = {
+  kind: NodeKind.ConvertToBinaryNumber;
+  expression: Expression;
 };
 
 export default function parser(tokens: Token[]): Node {
@@ -154,5 +161,25 @@ export default function parser(tokens: Token[]): Node {
     return node;
   }
 
-  return expr();
+  function conversion() {
+    let node: Expression = expr();
+
+    if (currentToken().kind === SyntaxKind.In) {
+      consumeToken(SyntaxKind.In);
+
+      if (currentToken().kind === SyntaxKind.Binary) {
+        consumeToken(SyntaxKind.Binary);
+        node = {
+          kind: NodeKind.ConvertToBinaryNumber,
+          expression: node,
+        };
+      } else {
+        throw new Error(`Can't extract unit from token ${currentToken()}`);
+      }
+    }
+
+    return node;
+  }
+
+  return conversion();
 }

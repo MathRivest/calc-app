@@ -12,6 +12,8 @@ export enum SyntaxKind {
   AsteriskToken,
   SlashToken,
   CaretToken,
+  In,
+  Binary,
 }
 
 export interface NumberToken extends Token {
@@ -39,6 +41,8 @@ const keywordToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
   ['times', SyntaxKind.AsteriskToken],
   ['mul', SyntaxKind.AsteriskToken],
   ['divide', SyntaxKind.SlashToken],
+  ['in', SyntaxKind.In],
+  ['binary', SyntaxKind.Binary],
 ]);
 
 function isDigit(char: string) {
@@ -53,7 +57,7 @@ function isLetter(char: string) {
 
 function extractNextKeyword(input: string, current: number): string {
   let keyword = '';
-  while (isLetter(input[current])) {
+  while (input[current] && isLetter(input[current])) {
     keyword += input[current];
     current++;
   }

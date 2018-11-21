@@ -43,3 +43,14 @@ test('plus', () => {
 test.skip('divide by', () => {
   expect(interpreter('4 divide by 2')).toBe('2');
 });
+
+describe('binary', () => {
+  test('number to binary', () =>
+    expect(interpreter('5 in binary')).toBe('0b101'));
+  test('expression to binary', () =>
+    expect(interpreter('1+2+3 in binary')).toBe('0b110'));
+
+  // Todo
+  test.skip('number representation propagation', () =>
+    expect(interpreter('1 in binary + 6')).toBe('0b111'));
+});
