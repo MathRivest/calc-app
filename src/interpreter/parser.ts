@@ -65,7 +65,7 @@ export default function parser(tokens: Token[]): Node {
   function makeNumberLiteral(token: NumberToken): NumberLiteral {
     return {
       kind: NodeKind.NumberLiteral,
-      value: parseInt(token.value),
+      value: parseFloat(token.value),
     };
   }
 

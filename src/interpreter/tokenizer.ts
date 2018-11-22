@@ -64,6 +64,24 @@ function extractNextKeyword(input: string, current: number): string {
   return keyword;
 }
 
+function extractNumber(input: string, current: number): string {
+  let value = '';
+  let hasDecimals = false;
+
+  while (input[current]) {
+    if (isDigit(input[current])) {
+      value += input[current];
+    } else if (input[current] === '.' && !hasDecimals) {
+      value += '.';
+      hasDecimals = true;
+    } else {
+      break;
+    }
+    current++;
+  }
+  return value;
+}
+
 export default function tokenizer(input: string): Token[] {
   let current = 0;
 
@@ -79,12 +97,12 @@ export default function tokenizer(input: string): Token[] {
       });
       current++;
     } else if (isDigit(char)) {
-      let value = '';
-      while (isDigit(char)) {
-        value += char;
-        char = input[++current];
-      }
-      tokens.push({ kind: SyntaxKind.Number, value } as NumberToken);
+      var numberAsString = extractNumber(input, current);
+      current += numberAsString.length;
+      tokens.push({
+        kind: SyntaxKind.Number,
+        value: numberAsString,
+      } as NumberToken);
     } else if (isLetter(char)) {
       const keyword = extractNextKeyword(input, current);
       const syntaxKind = keywordToSyntaxKindMap.get(keyword);
