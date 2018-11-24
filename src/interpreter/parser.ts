@@ -9,13 +9,15 @@ export enum NodeKind {
   BinaryExpression,
   UnaryPlus,
   UnaryMinus,
+  ConvertToBinaryNumber,
 }
 
 export type Expression =
   | NumberLiteral
   | UnaryMinus
   | UnaryPlus
-  | BinaryExpression;
+  | BinaryExpression
+  | ConvertToBinaryNumber;
 
 export type NumberLiteral = {
   kind: NodeKind.NumberLiteral;
@@ -39,6 +41,11 @@ export type BinaryExpression = {
   operator: MathOperator;
 };
 
+export type ConvertToBinaryNumber = {
+  kind: NodeKind.ConvertToBinaryNumber;
+  expression: Expression;
+};
+
 export default function parser(tokens: Token[]): Node {
   let i = 0;
 
@@ -58,7 +65,7 @@ export default function parser(tokens: Token[]): Node {
   function makeNumberLiteral(token: NumberToken): NumberLiteral {
     return {
       kind: NodeKind.NumberLiteral,
-      value: parseInt(token.value),
+      value: parseFloat(token.value),
     };
   }
 
@@ -94,15 +101,34 @@ export default function parser(tokens: Token[]): Node {
     throw Error(`Unexpected token : ${token}`);
   }
 
-  function exponent(): Expression {
+  function conversion() {
     let node: Expression = factor();
+
+    if (currentToken().kind === SyntaxKind.In) {
+      consumeToken(SyntaxKind.In);
+
+      if (currentToken().kind === SyntaxKind.Binary) {
+        consumeToken(SyntaxKind.Binary);
+        node = {
+          kind: NodeKind.ConvertToBinaryNumber,
+          expression: node,
+        };
+      } else {
+        throw new Error(`Can't extract unit from token ${currentToken()}`);
+      }
+    }
+    return node;
+  }
+
+  function exponent(): Expression {
+    let node: Expression = conversion();
 
     let token = currentToken();
 
     while (true) {
       if (token.kind === SyntaxKind.CaretToken) {
         consumeToken(SyntaxKind.CaretToken);
-        node = makeBinaryExpression(node, '^', factor());
+        node = makeBinaryExpression(node, '^', conversion());
       } else {
         break;
       }
