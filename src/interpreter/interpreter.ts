@@ -7,7 +7,7 @@ import parser, {
   Expression,
 } from './parser';
 
-enum Representation {
+export enum Representation {
   Unknown,
   Decimal,
   Binary,
@@ -58,7 +58,12 @@ function evaluate(ast: Node): string {
         return visitBinaryExpression(node);
       case NodeKind.NumberLiteral:
         return visitNumberLiteral(node);
-      case NodeKind.ConvertToBinaryNumber:
+      case NodeKind.ConvertToDecimal:
+        return {
+          ...visit(node.expression),
+          representation: Representation.Decimal,
+        };
+      case NodeKind.ConvertToBinary:
         return {
           ...visit(node.expression),
           representation: Representation.Binary,
@@ -101,7 +106,7 @@ function evaluate(ast: Node): string {
   function visitNumberLiteral(node: NumberLiteral): ExpressionResult {
     return {
       value: node.value,
-      representation: Representation.Unknown,
+      representation: node.representation,
     };
   }
 

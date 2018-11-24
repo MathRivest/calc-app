@@ -3,7 +3,8 @@ export interface Token {
 }
 
 export enum SyntaxKind {
-  Number,
+  NumberLiteral,
+  BinaryLiteral,
   EOF,
   LPrecedence,
   RPrecedence,
@@ -14,10 +15,16 @@ export enum SyntaxKind {
   CaretToken,
   In,
   Binary,
+  Decimal,
 }
 
 export interface NumberToken extends Token {
-  kind: SyntaxKind.Number;
+  kind: SyntaxKind.NumberLiteral;
+  value: string;
+}
+
+export interface BinaryLiteralToken extends Token {
+  kind: SyntaxKind.BinaryLiteral;
   value: string;
 }
 
@@ -43,6 +50,7 @@ const keywordToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
   ['divide', SyntaxKind.SlashToken],
   ['in', SyntaxKind.In],
   ['binary', SyntaxKind.Binary],
+  ['decimal', SyntaxKind.Decimal],
 ]);
 
 function isDigit(char: string) {
@@ -62,6 +70,19 @@ function extractNextKeyword(input: string, current: number): string {
     current++;
   }
   return keyword;
+}
+
+function extractBinary(input: string, i: number): string {
+  if (input[i] !== '0' && input[i + 1] !== 'b') {
+    throw new Error('Expected literal binary prefix');
+  }
+  i += 2; // Skip over prefix
+  let value = '';
+  while (input[i] === '0' || input[i] === '1') {
+    value += input[i];
+    i++;
+  }
+  return value;
 }
 
 function extractNumber(input: string, current: number): string {
@@ -96,11 +117,18 @@ export default function tokenizer(input: string): Token[] {
         kind: syntaxKind,
       });
       current++;
+    } else if (char === '0' && input[current + 1] === 'b') {
+      const binaryAsString = extractBinary(input, current);
+      current += binaryAsString.length + 2;
+      tokens.push({
+        kind: SyntaxKind.BinaryLiteral,
+        value: binaryAsString,
+      } as BinaryLiteralToken);
     } else if (isDigit(char)) {
       var numberAsString = extractNumber(input, current);
       current += numberAsString.length;
       tokens.push({
-        kind: SyntaxKind.Number,
+        kind: SyntaxKind.NumberLiteral,
         value: numberAsString,
       } as NumberToken);
     } else if (isLetter(char)) {
