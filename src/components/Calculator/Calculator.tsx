@@ -31,20 +31,26 @@ class Calculator extends Component<ICalculatorProps, ICalculatorState> {
     };
   }
 
+  componentDidMount() {
+    this.scrollToBottom();
+  }
+
   handleSubmit = (expression: string) => {
     this.setState(
       {
         expressions: [...this.state.expressions, expression],
       },
-      () => {
-        const el = this.wrapperElement;
-        const options: ScrollToOptions = {
-          top: el.scrollHeight,
-          behavior: 'smooth',
-        };
-        el.scrollTo(options);
-      }
+      () => this.scrollToBottom(true)
     );
+  };
+
+  scrollToBottom = (isSmooth?: boolean) => {
+    const el = this.wrapperElement;
+    const options: ScrollToOptions = {
+      top: el.scrollHeight,
+      behavior: isSmooth ? 'smooth' : 'instant',
+    };
+    el.scrollTo(options);
   };
 
   render(_props, state: ICalculatorState) {

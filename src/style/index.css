@@ -1,8 +1,10 @@
 :root {
   --color-theme-background-1: #1c1d30;
   --color-theme-background-2: #292942;
-  --color-theme-text-color-1: rgba(255, 255, 255, 0.8);
-  --color-theme-text-color-2: rgba(255, 255, 255, 1);
+  --color-theme-background-3: #292942;
+  --color-theme-text-color-1: rgba(255, 255, 255, 1);
+  --color-theme-text-color-2: rgba(255, 255, 255, 0.8);
+  --color-theme-text-color-3: rgba(255, 255, 255, 0.4);
   --color-theme-accent-1: #59cecf;
 }
 
