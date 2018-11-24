@@ -3,8 +3,10 @@ import {
   SyntaxKind,
   NumberToken,
   BinaryLiteralToken,
+  CurrencyToken,
 } from './tokenizer';
 import { Representation } from './interpreter';
+import { Currency } from './currencies';
 
 export type Node = Expression;
 
@@ -17,6 +19,7 @@ export enum NodeKind {
   UnaryMinus,
   ConvertToBinary,
   ConvertToDecimal,
+  ConvertToCurrency,
 }
 
 export type Expression =
@@ -25,12 +28,19 @@ export type Expression =
   | UnaryPlus
   | BinaryExpression
   | ConvertToBinary
-  | ConvertToDecimal;
+  | ConvertToDecimal
+  | ConvertToCurrency;
 
 export type NumberLiteral = {
   kind: NodeKind.NumberLiteral;
   value: number;
   representation: Representation;
+};
+
+export type ConvertToCurrency = {
+  kind: NodeKind.ConvertToCurrency;
+  currency: Currency;
+  expression: Expression;
 };
 
 export type UnaryPlus = {
@@ -132,28 +142,51 @@ export default function parser(tokens: Token[]): Node {
     throw Error(`Unexpected token : ${token}`);
   }
 
-  function conversion() {
+  function conversion(): Expression {
     let node: Expression = factor();
 
-    if (currentToken().kind === SyntaxKind.In) {
-      consumeToken(SyntaxKind.In);
+    while (true) {
+      if (currentToken().kind === SyntaxKind.Currency) {
+        const currencyToken = consumeToken(
+          SyntaxKind.Currency
+        ) as CurrencyToken;
+        node = {
+          kind: NodeKind.ConvertToCurrency,
+          expression: node,
+          currency: currencyToken.value,
+        } as ConvertToCurrency;
+      } else if (currentToken().kind === SyntaxKind.In) {
+        consumeToken(SyntaxKind.In);
 
-      if (currentToken().kind === SyntaxKind.Binary) {
-        consumeToken(SyntaxKind.Binary);
-        node = {
-          kind: NodeKind.ConvertToBinary,
-          expression: node,
-        };
-      } else if (currentToken().kind === SyntaxKind.Decimal) {
-        consumeToken(SyntaxKind.Decimal);
-        node = {
-          kind: NodeKind.ConvertToDecimal,
-          expression: node,
-        };
+        if (currentToken().kind === SyntaxKind.Binary) {
+          consumeToken(SyntaxKind.Binary);
+          node = {
+            kind: NodeKind.ConvertToBinary,
+            expression: node,
+          };
+        } else if (currentToken().kind === SyntaxKind.Decimal) {
+          consumeToken(SyntaxKind.Decimal);
+          node = {
+            kind: NodeKind.ConvertToDecimal,
+            expression: node,
+          };
+        } else if (currentToken().kind === SyntaxKind.Currency) {
+          const currencyToken = consumeToken(
+            SyntaxKind.Currency
+          ) as CurrencyToken;
+          node = {
+            kind: NodeKind.ConvertToCurrency,
+            expression: node,
+            currency: currencyToken.value,
+          };
+        } else {
+          throw new Error(`Can't extract unit from token ${currentToken()}`);
+        }
       } else {
-        throw new Error(`Can't extract unit from token ${currentToken()}`);
+        break;
       }
     }
+
     return node;
   }
 
