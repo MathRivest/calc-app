@@ -6,6 +6,7 @@ import parser, {
   Node,
   Expression,
 } from './parser';
+import { Currency } from './currencies';
 
 export enum Representation {
   Unknown,
@@ -16,7 +17,24 @@ export enum Representation {
 type ExpressionResult = {
   value: number;
   representation: Representation;
+  unit: Currency | null;
 };
+
+const conversionMap = new Map([[Currency.CAD, 1.32], [Currency.USD, 1]]);
+
+function convert(from: Currency | null, to: Currency, value: number): number {
+  if (from === null) {
+    return value;
+  }
+
+  const fromRate = conversionMap.get(from);
+  const toRate = conversionMap.get(to);
+  if (toRate === undefined || fromRate === undefined) {
+    throw new Error('Unkown unit');
+  }
+
+  return value * (1 / fromRate) * toRate;
+}
 
 function mergeRepresentation(
   left: Representation,
@@ -32,10 +50,24 @@ function mergeRepresentation(
 }
 
 function display(er: ExpressionResult): string {
+  const r = displayRepresentation(er);
+  switch (er.unit) {
+    case null:
+      return r;
+    case Currency.CAD:
+      return `$${r} CAD`;
+    case Currency.USD:
+      return `$${r}`;
+    default:
+      return r;
+  }
+}
+
+function displayRepresentation(er: ExpressionResult): string {
   switch (er.representation) {
     case Representation.Unknown:
     case Representation.Decimal:
-      return er.value.toString();
+      return er.value.toFixed(2);
     case Representation.Binary:
       return '0b' + er.value.toString(2);
     default:
@@ -48,12 +80,14 @@ function evaluate(ast: Node): string {
     switch (node.kind) {
       case NodeKind.UnaryPlus:
         return visit(node.expression);
-      case NodeKind.UnaryMinus:
+      case NodeKind.UnaryMinus: {
         const result = visit(node.expression);
         return {
           value: -result.value,
           representation: result.representation,
+          unit: null,
         };
+      }
       case NodeKind.BinaryExpression:
         return visitBinaryExpression(node);
       case NodeKind.NumberLiteral:
@@ -68,6 +102,14 @@ function evaluate(ast: Node): string {
           ...visit(node.expression),
           representation: Representation.Binary,
         };
+      case NodeKind.ConvertToCurrency: {
+        const result = visit(node.expression);
+        return {
+          value: convert(result.unit, node.currency, result.value),
+          unit: node.currency,
+          representation: result.representation,
+        };
+      }
       default:
         throw new Error(`Unexpected node kind: ${node}`);
     }
@@ -100,6 +142,7 @@ function evaluate(ast: Node): string {
         left.representation,
         right.representation
       ),
+      unit: right.unit, // Todo: throw when unit is not compatible
     };
   }
 
@@ -107,6 +150,7 @@ function evaluate(ast: Node): string {
     return {
       value: node.value,
       representation: node.representation,
+      unit: null,
     };
   }
 

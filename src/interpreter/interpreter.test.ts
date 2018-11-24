@@ -24,3 +24,6 @@ t('1+2+3 in binary', '0b110');
 t('1 in binary + 6', '0b111');
 t('0b101 in decimal', '5');
 t('1.5+0.33', '1.83');
+
+t('1USD in CAD', '$1.32 CAD');
+t('1CAD in USD', '$0.76');
