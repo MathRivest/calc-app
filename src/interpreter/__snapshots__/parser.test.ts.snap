@@ -5,11 +5,13 @@ Object {
   "kind": 1,
   "left": Object {
     "kind": 0,
+    "representation": 0,
     "value": 1,
   },
   "operator": "+",
   "right": Object {
     "kind": 0,
+    "representation": 0,
     "value": 2,
   },
 }
@@ -22,17 +24,20 @@ Object {
     "kind": 1,
     "left": Object {
       "kind": 0,
+      "representation": 0,
       "value": 1,
     },
     "operator": "+",
     "right": Object {
       "kind": 0,
+      "representation": 0,
       "value": 2,
     },
   },
   "operator": "-",
   "right": Object {
     "kind": 0,
+    "representation": 0,
     "value": 2,
   },
 }
@@ -43,11 +48,13 @@ Object {
   "kind": 1,
   "left": Object {
     "kind": 0,
+    "representation": 0,
     "value": 1,
   },
   "operator": "/",
   "right": Object {
     "kind": 0,
+    "representation": 0,
     "value": 2,
   },
 }
@@ -58,6 +65,7 @@ Object {
   "kind": 1,
   "left": Object {
     "kind": 0,
+    "representation": 0,
     "value": 1,
   },
   "operator": "+",
@@ -65,11 +73,13 @@ Object {
     "kind": 1,
     "left": Object {
       "kind": 0,
+      "representation": 0,
       "value": 2,
     },
     "operator": "*",
     "right": Object {
       "kind": 0,
+      "representation": 0,
       "value": 2,
     },
   },
@@ -81,11 +91,13 @@ Object {
   "kind": 1,
   "left": Object {
     "kind": 0,
+    "representation": 0,
     "value": 1,
   },
   "operator": "*",
   "right": Object {
     "kind": 0,
+    "representation": 0,
     "value": 2,
   },
 }
@@ -98,17 +110,20 @@ Object {
     "kind": 1,
     "left": Object {
       "kind": 0,
+      "representation": 0,
       "value": 1,
     },
     "operator": "+",
     "right": Object {
       "kind": 0,
+      "representation": 0,
       "value": 2,
     },
   },
   "operator": "*",
   "right": Object {
     "kind": 0,
+    "representation": 0,
     "value": 2,
   },
 }
@@ -119,11 +134,13 @@ Object {
   "kind": 1,
   "left": Object {
     "kind": 0,
+    "representation": 0,
     "value": 1,
   },
   "operator": "-",
   "right": Object {
     "kind": 0,
+    "representation": 0,
     "value": 2,
   },
 }
