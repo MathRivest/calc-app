@@ -49,6 +49,10 @@ function mergeRepresentation(
   return right;
 }
 
+function roundTo2Decimals(value: number): string {
+  return (Math.round(value * 100) / 100).toString();
+}
+
 function display(er: ExpressionResult): string {
   const r = displayRepresentation(er);
   switch (er.unit) {
@@ -67,7 +71,7 @@ function displayRepresentation(er: ExpressionResult): string {
   switch (er.representation) {
     case Representation.Unknown:
     case Representation.Decimal:
-      return er.value.toFixed(2);
+      return roundTo2Decimals(er.value);
     case Representation.Binary:
       return '0b' + er.value.toString(2);
     default:
