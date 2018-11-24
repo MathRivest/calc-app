@@ -9,9 +9,5 @@ export default ({ value }: { value: string }) => {
     console.log(error);
     results = 'Nope';
   }
-  return (
-    <div>
-      {value} = {results}
-    </div>
-  );
+  return <span>{results}</span>;
 };
