@@ -11,7 +11,12 @@ export default function Rows({ expressions }: IRowsProps) {
     <div className={style.rows}>
       {expressions.map(expression => (
         // <RowItem expression={expression}>
-        <Interpreter value={expression} />
+        <div className={style.rowItem}>
+          <div className={style.rowItemValue}>{expression}</div>
+          <div className={style.rowItemResult}>
+            <Interpreter value={expression} />
+          </div>
+        </div>
       ))}
     </div>
   );
