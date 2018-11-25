@@ -6,6 +6,14 @@
   --color-theme-text-color-2: rgba(255, 255, 255, 0.6);
   --color-theme-text-color-3: rgba(255, 255, 255, 0.4);
   --color-theme-accent-1: #59cecf;
+
+  /* --color-theme-background-1: #161b25;
+  --color-theme-background-2: #202734;
+  --color-theme-background-3: #202734;
+  --color-theme-text-color-1: rgba(255, 255, 255, 1);
+  --color-theme-text-color-2: rgba(255, 255, 255, 0.6);
+  --color-theme-text-color-3: rgba(255, 255, 255, 0.4);
+  --color-theme-accent-1: #f16586; */
 }
 
 html,
