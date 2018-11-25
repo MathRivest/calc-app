@@ -3,10 +3,9 @@ import {
   SyntaxKind,
   NumberToken,
   BinaryLiteralToken,
-  CurrencyToken,
+  UnitToken,
 } from './tokenizer';
 import { Representation } from './interpreter';
-import { Currency } from './currencies';
 
 export type Node = Expression;
 
@@ -19,7 +18,7 @@ export enum NodeKind {
   UnaryMinus,
   ConvertToBinary,
   ConvertToDecimal,
-  ConvertToCurrency,
+  ConvertToUnit,
 }
 
 export type Expression =
@@ -29,7 +28,7 @@ export type Expression =
   | BinaryExpression
   | ConvertToBinary
   | ConvertToDecimal
-  | ConvertToCurrency;
+  | ConvertToUnit;
 
 export type NumberLiteral = {
   kind: NodeKind.NumberLiteral;
@@ -37,9 +36,9 @@ export type NumberLiteral = {
   representation: Representation;
 };
 
-export type ConvertToCurrency = {
-  kind: NodeKind.ConvertToCurrency;
-  currency: Currency;
+export type ConvertToUnit = {
+  kind: NodeKind.ConvertToUnit;
+  unit: string;
   expression: Expression;
 };
 
@@ -150,13 +149,13 @@ export default function parser(tokens: Token[]): Node {
 
   function unit(): Expression {
     let node: Expression = factor();
-    if (currentToken().kind === SyntaxKind.Currency) {
-      const currencyToken = consumeToken(SyntaxKind.Currency) as CurrencyToken;
+    if (currentToken().kind === SyntaxKind.Unit) {
+      const unitToken = consumeToken(SyntaxKind.Unit) as UnitToken;
       node = {
-        kind: NodeKind.ConvertToCurrency,
+        kind: NodeKind.ConvertToUnit,
         expression: node,
-        currency: currencyToken.value,
-      } as ConvertToCurrency;
+        unit: unitToken.value,
+      } as ConvertToUnit;
     }
     return node;
   }
@@ -176,14 +175,12 @@ export default function parser(tokens: Token[]): Node {
             kind: NodeKind.ConvertToDecimal,
             expression: node,
           };
-        } else if (currentToken().kind === SyntaxKind.Currency) {
-          const currencyToken = consumeToken(
-            SyntaxKind.Currency
-          ) as CurrencyToken;
+        } else if (currentToken().kind === SyntaxKind.Unit) {
+          const unitToken = consumeToken(SyntaxKind.Unit) as UnitToken;
           node = {
-            kind: NodeKind.ConvertToCurrency,
+            kind: NodeKind.ConvertToUnit,
             expression: node,
-            currency: currencyToken.value,
+            unit: unitToken.value,
           };
         } else {
           throw new Error(`Can't extract unit from token ${currentToken()}`);

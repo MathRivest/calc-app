@@ -6,7 +6,7 @@ import parser, {
   Node,
   Expression,
 } from './parser';
-import { Currency } from './currencies';
+import { BaseUnitDefinition, unitDefinitions, UnitDefinition } from './units';
 
 export enum Representation {
   Unknown,
@@ -17,23 +17,33 @@ export enum Representation {
 type ExpressionResult = {
   value: number;
   representation: Representation;
-  unit: Currency | null;
+  unit: string | null;
 };
 
-const conversionMap = new Map([[Currency.CAD, 1.32], [Currency.USD, 1]]);
+function makeUnitMap(
+  unitDefinitions: BaseUnitDefinition[]
+): Map<string, UnitDefinition> {
+  const map = new Map();
+  for (let unitDefinition of unitDefinitions) {
+    unitDefinition.conversionMap.forEach((value, key) => map.set(key, value));
+  }
+  return map;
+}
 
-function convert(from: Currency | null, to: Currency, value: number): number {
+const unitMap = makeUnitMap(unitDefinitions);
+
+function convert(from: string | null, to: string, value: number): number {
   if (from === null) {
     return value;
   }
 
-  const fromRate = conversionMap.get(from);
-  const toRate = conversionMap.get(to);
-  if (toRate === undefined || fromRate === undefined) {
+  const fromUnit = unitMap.get(from);
+  const toUnit = unitMap.get(to);
+  if (toUnit === undefined || fromUnit === undefined) {
     throw new Error('Unkown unit');
   }
 
-  return value * (1 / fromRate) * toRate;
+  return toUnit.fromBase(fromUnit.toBase(value));
 }
 
 function mergeRepresentation(
@@ -55,16 +65,11 @@ function roundTo2Decimals(value: number): string {
 
 function display(er: ExpressionResult): string {
   const r = displayRepresentation(er);
-  switch (er.unit) {
-    case null:
-      return r;
-    case Currency.CAD:
-      return `$${r} CAD`;
-    case Currency.USD:
-      return `$${r}`;
-    default:
-      return r;
+  if (er.unit === null) {
+    return r;
   }
+  const unit = unitMap.get(er.unit);
+  return unit !== undefined ? unit.format(r) : r;
 }
 
 function displayRepresentation(er: ExpressionResult): string {
@@ -106,11 +111,11 @@ function evaluate(ast: Node): string {
           ...visit(node.expression),
           representation: Representation.Binary,
         };
-      case NodeKind.ConvertToCurrency: {
+      case NodeKind.ConvertToUnit: {
         const result = visit(node.expression);
         return {
-          value: convert(result.unit, node.currency, result.value),
-          unit: node.currency,
+          value: convert(result.unit, node.unit, result.value),
+          unit: node.unit,
           representation: result.representation,
         };
       }
