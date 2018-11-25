@@ -3,10 +3,9 @@ import {
   SyntaxKind,
   NumberToken,
   BinaryLiteralToken,
-  CurrencyToken,
+  UnitToken,
 } from './tokenizer';
 import { Representation } from './interpreter';
-import { Currency } from './currencies';
 
 export type Node = Expression;
 
@@ -19,7 +18,7 @@ export enum NodeKind {
   UnaryMinus,
   ConvertToBinary,
   ConvertToDecimal,
-  ConvertToCurrency,
+  ConvertToUnit,
 }
 
 export type Expression =
@@ -29,7 +28,7 @@ export type Expression =
   | BinaryExpression
   | ConvertToBinary
   | ConvertToDecimal
-  | ConvertToCurrency;
+  | ConvertToUnit;
 
 export type NumberLiteral = {
   kind: NodeKind.NumberLiteral;
@@ -37,9 +36,9 @@ export type NumberLiteral = {
   representation: Representation;
 };
 
-export type ConvertToCurrency = {
-  kind: NodeKind.ConvertToCurrency;
-  currency: Currency;
+export type ConvertToUnit = {
+  kind: NodeKind.ConvertToUnit;
+  unit: string;
   expression: Expression;
 };
 
@@ -75,6 +74,15 @@ export default function parser(tokens: Token[]): Node {
 
   function currentToken(): Token {
     return tokens[i];
+  }
+
+  function testAndConsume(kind: SyntaxKind): boolean {
+    const token = currentToken();
+    if (token.kind === kind) {
+      i++;
+      return true;
+    }
+    return false;
   }
 
   function consumeToken(kind: SyntaxKind): Token {
@@ -119,11 +127,9 @@ export default function parser(tokens: Token[]): Node {
 
   function factor(): Expression {
     let token = currentToken();
-    if (token.kind === SyntaxKind.PlusToken) {
-      consumeToken(SyntaxKind.PlusToken);
+    if (testAndConsume(SyntaxKind.PlusToken)) {
       return { kind: NodeKind.UnaryPlus, expression: factor() };
-    } else if (token.kind === SyntaxKind.MinusToken) {
-      consumeToken(SyntaxKind.MinusToken);
+    } else if (testAndConsume(SyntaxKind.MinusToken)) {
       return { kind: NodeKind.UnaryMinus, expression: factor() };
     } else if (token.kind === SyntaxKind.BinaryLiteral) {
       return makeNumberLiteralFromBinary(consumeToken(
@@ -133,8 +139,7 @@ export default function parser(tokens: Token[]): Node {
       return makeNumberLiteral(consumeToken(
         SyntaxKind.NumberLiteral
       ) as NumberToken);
-    } else if (token.kind === SyntaxKind.LPrecedence) {
-      consumeToken(SyntaxKind.LPrecedence);
+    } else if (testAndConsume(SyntaxKind.LPrecedence)) {
       let node = expr();
       consumeToken(SyntaxKind.RPrecedence);
       return node;
@@ -142,42 +147,40 @@ export default function parser(tokens: Token[]): Node {
     throw Error(`Unexpected token : ${token}`);
   }
 
-  function conversion(): Expression {
+  function unit(): Expression {
     let node: Expression = factor();
+    if (currentToken().kind === SyntaxKind.Unit) {
+      const unitToken = consumeToken(SyntaxKind.Unit) as UnitToken;
+      node = {
+        kind: NodeKind.ConvertToUnit,
+        expression: node,
+        unit: unitToken.value,
+      } as ConvertToUnit;
+    }
+    return node;
+  }
+
+  function conversion(): Expression {
+    let node: Expression = unit();
 
     while (true) {
-      if (currentToken().kind === SyntaxKind.Currency) {
-        const currencyToken = consumeToken(
-          SyntaxKind.Currency
-        ) as CurrencyToken;
-        node = {
-          kind: NodeKind.ConvertToCurrency,
-          expression: node,
-          currency: currencyToken.value,
-        } as ConvertToCurrency;
-      } else if (currentToken().kind === SyntaxKind.In) {
-        consumeToken(SyntaxKind.In);
-
-        if (currentToken().kind === SyntaxKind.Binary) {
-          consumeToken(SyntaxKind.Binary);
+      if (testAndConsume(SyntaxKind.In)) {
+        if (testAndConsume(SyntaxKind.Binary)) {
           node = {
             kind: NodeKind.ConvertToBinary,
             expression: node,
           };
-        } else if (currentToken().kind === SyntaxKind.Decimal) {
-          consumeToken(SyntaxKind.Decimal);
+        } else if (testAndConsume(SyntaxKind.Decimal)) {
           node = {
             kind: NodeKind.ConvertToDecimal,
             expression: node,
           };
-        } else if (currentToken().kind === SyntaxKind.Currency) {
-          const currencyToken = consumeToken(
-            SyntaxKind.Currency
-          ) as CurrencyToken;
+        } else if (currentToken().kind === SyntaxKind.Unit) {
+          const unitToken = consumeToken(SyntaxKind.Unit) as UnitToken;
           node = {
-            kind: NodeKind.ConvertToCurrency,
+            kind: NodeKind.ConvertToUnit,
             expression: node,
-            currency: currencyToken.value,
+            unit: unitToken.value,
           };
         } else {
           throw new Error(`Can't extract unit from token ${currentToken()}`);
@@ -193,16 +196,8 @@ export default function parser(tokens: Token[]): Node {
   function exponent(): Expression {
     let node: Expression = conversion();
 
-    let token = currentToken();
-
-    while (true) {
-      if (token.kind === SyntaxKind.CaretToken) {
-        consumeToken(SyntaxKind.CaretToken);
-        node = makeBinaryExpression(node, '^', conversion());
-      } else {
-        break;
-      }
-      token = currentToken();
+    while (testAndConsume(SyntaxKind.CaretToken)) {
+      node = makeBinaryExpression(node, '^', conversion());
     }
 
     return node;
@@ -211,19 +206,14 @@ export default function parser(tokens: Token[]): Node {
   function term(): Expression {
     let node: Expression = exponent();
 
-    let token = currentToken();
-
     while (true) {
-      if (token.kind === SyntaxKind.AsteriskToken) {
-        consumeToken(SyntaxKind.AsteriskToken);
+      if (testAndConsume(SyntaxKind.AsteriskToken)) {
         node = makeBinaryExpression(node, '*', exponent());
-      } else if (token.kind === SyntaxKind.SlashToken) {
-        consumeToken(SyntaxKind.SlashToken);
+      } else if (testAndConsume(SyntaxKind.SlashToken)) {
         node = makeBinaryExpression(node, '/', exponent());
       } else {
         break;
       }
-      token = currentToken();
     }
 
     return node;
@@ -232,19 +222,14 @@ export default function parser(tokens: Token[]): Node {
   function expr(): Expression {
     let node: Expression = term();
 
-    let token = currentToken();
-
     while (true) {
-      if (token.kind === SyntaxKind.PlusToken) {
-        consumeToken(SyntaxKind.PlusToken);
+      if (testAndConsume(SyntaxKind.PlusToken)) {
         node = makeBinaryExpression(node, '+', term());
-      } else if (token.kind === SyntaxKind.MinusToken) {
-        consumeToken(SyntaxKind.MinusToken);
+      } else if (testAndConsume(SyntaxKind.MinusToken)) {
         node = makeBinaryExpression(node, '-', term());
       } else {
         break;
       }
-      token = currentToken();
     }
 
     return node;
