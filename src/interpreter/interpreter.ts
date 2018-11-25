@@ -36,8 +36,12 @@ function makeUnitMap(
 
 const unitMap = makeUnitMap(unitDefinitions);
 
-function convert(from: string | null, to: string, value: number): number {
-  if (from === null) {
+function convert(
+  from: string | null,
+  to: string | null,
+  value: number
+): number {
+  if (from === null || to === null) {
     return value;
   }
 
@@ -133,18 +137,18 @@ function evaluate(ast: Node): string {
 
   function binaryOperatorToFunction(
     operator: '+' | '-' | '*' | '/' | '^'
-  ): (l: number, r: number) => number {
+  ): (l: ExpressionResult, r: ExpressionResult) => number {
     switch (operator) {
       case '+':
-        return (l, r) => l + r;
+        return (l, r) => convert(l.unit, r.unit, l.value) + r.value;
       case '-':
-        return (l, r) => l - r;
+        return (l, r) => convert(l.unit, r.unit, l.value) - r.value;
       case '*':
-        return (l, r) => l * r;
+        return (l, r) => l.value * r.value;
       case '/':
-        return (l, r) => l / r;
+        return (l, r) => l.value / r.value;
       case '^':
-        return Math.pow;
+        return (l, r) => Math.pow(l.value, r.value);
     }
   }
 
@@ -153,7 +157,7 @@ function evaluate(ast: Node): string {
     const right = visit(node.right);
 
     return {
-      value: binaryOperatorToFunction(node.operator)(left.value, right.value),
+      value: binaryOperatorToFunction(node.operator)(left, right),
       representation: mergeRepresentation(
         left.representation,
         right.representation
