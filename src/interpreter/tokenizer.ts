@@ -65,9 +65,11 @@ function completeKeywordToSyntaxMapWithUnits(
   unitDefinitions: BaseUnitDefinition[]
 ) {
   for (let unitDefinition of unitDefinitions) {
-    unitDefinition.conversionMap.forEach((_, key) =>
-      keywordToSyntaxKindMap.set(key, SyntaxKind.Unit)
-    );
+    for (let unit of unitDefinition.units) {
+      for (let synonym of unit.synonyms) {
+        keywordToSyntaxKindMap.set(synonym, SyntaxKind.Unit);
+      }
+    }
   }
 }
 

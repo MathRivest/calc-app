@@ -2,63 +2,60 @@ export type UnitDefinition = {
   fromBase: (value: number) => number;
   toBase: (value: number) => number;
   format: (s: string) => string;
+  synonyms: string[];
 };
 
 export type BaseUnitDefinition = {
   base: string;
-  conversionMap: Map<string, UnitDefinition>;
+  units: UnitDefinition[];
 };
 
 function unitWithRatio(
-  standard: string,
+  synonyms: string[],
   ratio: number,
-  format = str => `${str}${standard}`
-): [string, UnitDefinition] {
-  return [
-    standard,
-    {
-      fromBase: v => v * ratio,
-      toBase: v => v / ratio,
-      format,
-    },
-  ];
+  format
+): UnitDefinition {
+  return unitDefinition(synonyms, v => v * ratio, v => v / ratio, format);
 }
 
 function unitDefinition(
-  standard: string,
+  synonyms: string[] = [],
   fromBase: (value: number) => number,
   toBase: (value: number) => number,
-  format = str => `${str}${standard}`
-): [string, UnitDefinition] {
-  return [
-    standard,
-    {
-      fromBase,
-      toBase,
-      format,
-    },
-  ];
+  format
+): UnitDefinition {
+  return {
+    fromBase,
+    toBase,
+    format,
+    synonyms,
+  };
 }
 
 export const unitDefinitions: BaseUnitDefinition[] = [
   {
     base: 'Currency',
-    conversionMap: new Map([
-      unitWithRatio('USD', 1, str => `$${str}`),
-      unitWithRatio('CAD', 1.32, str => `$${str} CAD`),
-    ]),
+    units: [
+      unitWithRatio(['USD'], 1, str => `$${str}`),
+      unitWithRatio(['CAD'], 1.32, str => `$${str} CAD`),
+    ],
   },
   {
     base: 'Temperature',
-    conversionMap: new Map([
-      unitDefinition('K', v => v, v => v, str => `${str} K`),
-      unitDefinition('C', v => v - 273.15, v => v + 273.15, str => `${str} C`),
+    units: [
+      unitDefinition(['kelvin'], v => v, v => v, str => `${str} K`),
       unitDefinition(
-        'F',
+        ['°C', 'C', 'celsius'],
+        v => v - 273.15,
+        v => v + 273.15,
+        str => `${str} °C`
+      ),
+      unitDefinition(
+        ['°F', 'F', 'fahrenheit'],
         v => ((v - 273.15) * 9) / 5 + 32,
         v => ((v - 32) * 5) / 9 + 273.15,
-        str => `${str} F`
+        str => `${str} °F`
       ),
-    ]),
+    ],
   },
 ];

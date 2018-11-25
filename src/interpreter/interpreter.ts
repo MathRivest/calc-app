@@ -25,7 +25,11 @@ function makeUnitMap(
 ): Map<string, UnitDefinition> {
   const map = new Map();
   for (let unitDefinition of unitDefinitions) {
-    unitDefinition.conversionMap.forEach((value, key) => map.set(key, value));
+    for (let unit of unitDefinition.units) {
+      for (let synonym of unit.synonyms) {
+        map.set(synonym, unit);
+      }
+    }
   }
   return map;
 }
