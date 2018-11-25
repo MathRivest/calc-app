@@ -67,7 +67,7 @@ function completeKeywordToSyntaxMapWithUnits(
   for (let unitDefinition of unitDefinitions) {
     for (let unit of unitDefinition.units) {
       for (let synonym of unit.synonyms) {
-        keywordToSyntaxKindMap.set(synonym, SyntaxKind.Unit);
+        keywordToSyntaxKindMap.set(synonym.toLowerCase(), SyntaxKind.Unit);
       }
     }
   }
@@ -154,7 +154,7 @@ export default function tokenizer(input: string): Token[] {
         value: numberAsString,
       } as NumberToken);
     } else if (isLetter(char)) {
-      const keyword = extractNextKeyword(input, current);
+      const keyword = extractNextKeyword(input, current).toLowerCase();
       const syntaxKind = keywordToSyntaxKindMap.get(keyword);
       if (syntaxKind === SyntaxKind.Unit) {
         tokens.push({
