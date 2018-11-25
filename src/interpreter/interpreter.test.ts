@@ -36,3 +36,5 @@ t('0 celsius in kelvin', '273.15 K');
 t('0 CelSius in keLvin', '273.15 K');
 t('100 kelvin + 100 celsius', '-73.15 °C');
 t('100 kelvin - 100 celsius + 100 fahrenheit', '-359.67 °F');
+t('10 CAD + 10', '$20 CAD');
+t('100 + 10 celsius', '110 °C');
