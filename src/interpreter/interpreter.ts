@@ -27,7 +27,7 @@ function makeUnitMap(
   for (let unitDefinition of unitDefinitions) {
     for (let unit of unitDefinition.units) {
       for (let synonym of unit.synonyms) {
-        map.set(synonym, unit);
+        map.set(synonym.toLowerCase(), unit);
       }
     }
   }
@@ -43,8 +43,11 @@ function convert(from: string | null, to: string, value: number): number {
 
   const fromUnit = unitMap.get(from);
   const toUnit = unitMap.get(to);
-  if (toUnit === undefined || fromUnit === undefined) {
-    throw new Error('Unkown unit');
+  if (fromUnit === undefined) {
+    throw new Error(`Unkown unit: "${from}"`);
+  }
+  if (toUnit === undefined) {
+    throw new Error(`Unkown unit: "${to}"`);
   }
 
   return toUnit.fromBase(fromUnit.toBase(value));
