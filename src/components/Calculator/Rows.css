@@ -1,0 +1,24 @@
+.rows {
+}
+
+.rowItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 12px 20px;
+}
+.rowItem:nth-child(odd) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.rowItemValue {
+  font-size: 18px;
+  line-height: 24px;
+  color: var(--color-theme-text-color-2);
+}
+
+.rowItemResult {
+  font-size: 24px;
+  line-height: 36px;
+  color: var(--color-theme-accent-1);
+}

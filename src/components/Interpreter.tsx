@@ -7,11 +7,7 @@ export default ({ value }: { value: string }) => {
     results = interpreter(value);
   } catch (error) {
     console.log(error);
-    results = 'Nope';
+    results = '-';
   }
-  return (
-    <div>
-      {value} = {results}
-    </div>
-  );
+  return <span>{results}</span>;
 };
