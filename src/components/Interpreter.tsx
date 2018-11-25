@@ -7,7 +7,7 @@ export default ({ value }: { value: string }) => {
     results = interpreter(value);
   } catch (error) {
     console.log(error);
-    results = 'Nope';
+    results = '-';
   }
   return <span>{results}</span>;
 };

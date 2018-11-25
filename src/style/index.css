@@ -3,7 +3,7 @@
   --color-theme-background-2: #292942;
   --color-theme-background-3: #292942;
   --color-theme-text-color-1: rgba(255, 255, 255, 1);
-  --color-theme-text-color-2: rgba(255, 255, 255, 0.8);
+  --color-theme-text-color-2: rgba(255, 255, 255, 0.6);
   --color-theme-text-color-3: rgba(255, 255, 255, 0.4);
   --color-theme-accent-1: #59cecf;
 }
@@ -18,7 +18,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   font-weight: 400;
-  font-size: 24px;
+  font-size: 18px;
   line-height: 1.4rem;
   color: var(--color-theme-text-color-1);
   -webkit-font-smoothing: antialiased;
