@@ -211,6 +211,10 @@ export default function parser(tokens: Token[]): Node {
         node = makeBinaryExpression(node, '*', exponent());
       } else if (testAndConsume(SyntaxKind.SlashToken)) {
         node = makeBinaryExpression(node, '/', exponent());
+      } else if (testAndConsume(SyntaxKind.LPrecedence)) {
+        let ex = expr();
+        consumeToken(SyntaxKind.RPrecedence);
+        node = makeBinaryExpression(node, '*', ex);
       } else {
         break;
       }
