@@ -1,19 +1,13 @@
 # calc-app
 
 ## Deployment
+
 - Each PR will have its own Netlify preview attached
 - Master will autodeploy on `https://determined-raman-630ac7.netlify.com/`
 
-## To-Dos
-
-- Prendre une string et supporter mathematiques de base
-- ~~+, -, *, /~~ white spaces
-- Chain operations
-- Parenthesis
-
 ## CLI Commands
 
-``` bash
+```bash
 # install dependencies
 npm install
 
@@ -26,7 +20,7 @@ npm run build
 # test the production build locally
 npm run serve
 
-# run tests with jest and preact-render-spy 
+# run tests with jest and preact-render-spy
 npm run test
 ```
 

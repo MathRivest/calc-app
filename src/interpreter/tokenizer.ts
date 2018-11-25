@@ -1,4 +1,4 @@
-import { keywordToCurrency, Currency } from './currencies';
+import { BaseUnitDefinition, unitDefinitions } from './units';
 
 export interface Token {
   kind: SyntaxKind;
@@ -18,12 +18,12 @@ export enum SyntaxKind {
   In,
   Binary,
   Decimal,
-  Currency,
+  Unit,
 }
 
-export interface CurrencyToken extends Token {
-  kind: SyntaxKind.Currency;
-  value: Currency;
+export interface UnitToken extends Token {
+  kind: SyntaxKind.Unit;
+  value: string;
 }
 
 export interface NumberToken extends Token {
@@ -60,6 +60,18 @@ const keywordToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
   ['binary', SyntaxKind.Binary],
   ['decimal', SyntaxKind.Decimal],
 ]);
+
+function completeKeywordToSyntaxMapWithUnits(
+  unitDefinitions: BaseUnitDefinition[]
+) {
+  for (let unitDefinition of unitDefinitions) {
+    unitDefinition.conversionMap.forEach((_, key) =>
+      keywordToSyntaxKindMap.set(key, SyntaxKind.Unit)
+    );
+  }
+}
+
+completeKeywordToSyntaxMapWithUnits(unitDefinitions);
 
 function isDigit(char: string) {
   const NUMBERS = /[0-9]/;
@@ -141,14 +153,12 @@ export default function tokenizer(input: string): Token[] {
       } as NumberToken);
     } else if (isLetter(char)) {
       const keyword = extractNextKeyword(input, current);
-
-      const currency = keywordToCurrency.get(keyword);
       const syntaxKind = keywordToSyntaxKindMap.get(keyword);
-      if (currency !== undefined) {
+      if (syntaxKind === SyntaxKind.Unit) {
         tokens.push({
-          kind: SyntaxKind.Currency,
-          value: currency,
-        } as CurrencyToken);
+          kind: SyntaxKind.Unit,
+          value: keyword,
+        } as UnitToken);
       } else if (syntaxKind !== undefined) {
         tokens.push({ kind: syntaxKind });
       } else {
