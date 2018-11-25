@@ -28,7 +28,8 @@ t('1.5+0.33', '1.83');
 t('1USD in CAD', '$1.32 CAD');
 t('1CAD in USD', '$0.76');
 
-t('0C in K', '273.15 K');
-t('0K in C', '-273.15 C');
-t('100F in K', '310.93 K');
-t('(100C + 100C) in K', '473.15 K');
+t('0C in kelvin', '273.15 K');
+t('0kelvin in C', '-273.15 °C');
+t('100F in kelvin', '310.93 K');
+t('(100C + 100C) in kelvin', '473.15 K');
+t('0 celsius in kelvin', '273.15 K');
