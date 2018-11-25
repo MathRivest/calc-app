@@ -142,22 +142,25 @@ export default function parser(tokens: Token[]): Node {
     throw Error(`Unexpected token : ${token}`);
   }
 
-  function conversion(): Expression {
+  function unit(): Expression {
     let node: Expression = factor();
+    if (currentToken().kind === SyntaxKind.Currency) {
+      const currencyToken = consumeToken(SyntaxKind.Currency) as CurrencyToken;
+      node = {
+        kind: NodeKind.ConvertToCurrency,
+        expression: node,
+        currency: currencyToken.value,
+      } as ConvertToCurrency;
+    }
+    return node;
+  }
+
+  function conversion(): Expression {
+    let node: Expression = unit();
 
     while (true) {
-      if (currentToken().kind === SyntaxKind.Currency) {
-        const currencyToken = consumeToken(
-          SyntaxKind.Currency
-        ) as CurrencyToken;
-        node = {
-          kind: NodeKind.ConvertToCurrency,
-          expression: node,
-          currency: currencyToken.value,
-        } as ConvertToCurrency;
-      } else if (currentToken().kind === SyntaxKind.In) {
+      if (currentToken().kind === SyntaxKind.In) {
         consumeToken(SyntaxKind.In);
-
         if (currentToken().kind === SyntaxKind.Binary) {
           consumeToken(SyntaxKind.Binary);
           node = {
