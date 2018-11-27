@@ -108,8 +108,16 @@ function evaluate(ast: Node): string {
           unit: null,
         };
       }
-      case NodeKind.BinaryExpression:
-        return visitBinaryExpression(node);
+      case NodeKind.Addition:
+        return visitAdditiveBinaryExpression(node, (l, r) => l + r);
+      case NodeKind.Substraction:
+        return visitAdditiveBinaryExpression(node, (l, r) => l - r);
+      case NodeKind.Multiplication:
+        return visitTermBinaryExpression(node, (l, r) => l * r);
+      case NodeKind.Division:
+        return visitTermBinaryExpression(node, (l, r) => l / r);
+      case NodeKind.Exponent:
+        return visitTermBinaryExpression(node, Math.pow);
       case NodeKind.NumberLiteral:
         return visitNumberLiteral(node);
       case NodeKind.ConvertToDecimal:
@@ -142,17 +150,17 @@ function evaluate(ast: Node): string {
     return left;
   }
 
-  function visitAdditiveBinaryExpression(node: BinaryExpression) {
+  function visitAdditiveBinaryExpression(
+    node: BinaryExpression,
+    operation: (left: number, right: number) => number
+  ) {
     const left = visit(node.left);
     const right = visit(node.right);
     const targetUnit = getAdditiveTargetUnit(left.unit, right.unit);
     const leftConvertedValue = convert(left.unit, targetUnit, left.value);
 
     return {
-      value:
-        node.operator === '+'
-          ? leftConvertedValue + right.value
-          : leftConvertedValue - right.value,
+      value: operation(leftConvertedValue, right.value),
       representation: mergeRepresentation(
         left.representation,
         right.representation
@@ -162,48 +170,21 @@ function evaluate(ast: Node): string {
   }
 
   // "*" "/" "^" : TODO : Find a better name
-  function visitFactoredBinaryExpression(
-    node: BinaryExpression
+  function visitTermBinaryExpression(
+    node: BinaryExpression,
+    operation: (left: number, right: number) => number
   ): ExpressionResult {
     const left = visit(node.left);
     const right = visit(node.right);
 
-    let value = 0;
-
-    switch (node.operator) {
-      case '*':
-        value = left.value * right.value;
-        break;
-      case '/':
-        value = left.value / right.value;
-        break;
-      case '^':
-        value = Math.pow(left.value, right.value);
-        break;
-    }
-
     return {
-      value,
+      value: operation(left.value, right.value),
       representation: mergeRepresentation(
         left.representation,
         right.representation
       ),
       unit: right.unit, // Todo : compute real target unit
     };
-  }
-
-  function visitBinaryExpression(node: BinaryExpression): ExpressionResult {
-    switch (node.operator) {
-      case '+':
-      case '-':
-        return visitAdditiveBinaryExpression(node);
-      case '*':
-      case '/':
-      case '^':
-        return visitFactoredBinaryExpression(node);
-      default:
-        throw new Error(`Unsupported binary operator: "${node.operator}"`);
-    }
   }
 
   function visitNumberLiteral(node: NumberLiteral): ExpressionResult {

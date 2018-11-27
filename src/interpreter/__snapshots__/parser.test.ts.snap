@@ -8,7 +8,6 @@ Object {
     "representation": 0,
     "value": 1,
   },
-  "operator": "+",
   "right": Object {
     "kind": 0,
     "representation": 0,
@@ -19,7 +18,7 @@ Object {
 
 exports[`should match chain addition snapshot 1`] = `
 Object {
-  "kind": 1,
+  "kind": 2,
   "left": Object {
     "kind": 1,
     "left": Object {
@@ -27,14 +26,12 @@ Object {
       "representation": 0,
       "value": 1,
     },
-    "operator": "+",
     "right": Object {
       "kind": 0,
       "representation": 0,
       "value": 2,
     },
   },
-  "operator": "-",
   "right": Object {
     "kind": 0,
     "representation": 0,
@@ -45,13 +42,12 @@ Object {
 
 exports[`should match division snapshot 1`] = `
 Object {
-  "kind": 1,
+  "kind": 4,
   "left": Object {
     "kind": 0,
     "representation": 0,
     "value": 1,
   },
-  "operator": "/",
   "right": Object {
     "kind": 0,
     "representation": 0,
@@ -68,15 +64,13 @@ Object {
     "representation": 0,
     "value": 1,
   },
-  "operator": "+",
   "right": Object {
-    "kind": 1,
+    "kind": 3,
     "left": Object {
       "kind": 0,
       "representation": 0,
       "value": 2,
     },
-    "operator": "*",
     "right": Object {
       "kind": 0,
       "representation": 0,
@@ -88,13 +82,12 @@ Object {
 
 exports[`should match multiplication snapshot 1`] = `
 Object {
-  "kind": 1,
+  "kind": 3,
   "left": Object {
     "kind": 0,
     "representation": 0,
     "value": 1,
   },
-  "operator": "*",
   "right": Object {
     "kind": 0,
     "representation": 0,
@@ -105,7 +98,7 @@ Object {
 
 exports[`should match precedence snapshot 1`] = `
 Object {
-  "kind": 1,
+  "kind": 3,
   "left": Object {
     "kind": 1,
     "left": Object {
@@ -113,14 +106,12 @@ Object {
       "representation": 0,
       "value": 1,
     },
-    "operator": "+",
     "right": Object {
       "kind": 0,
       "representation": 0,
       "value": 2,
     },
   },
-  "operator": "*",
   "right": Object {
     "kind": 0,
     "representation": 0,
@@ -131,13 +122,12 @@ Object {
 
 exports[`should match substraction snapshot 1`] = `
 Object {
-  "kind": 1,
+  "kind": 2,
   "left": Object {
     "kind": 0,
     "representation": 0,
     "value": 1,
   },
-  "operator": "-",
   "right": Object {
     "kind": 0,
     "representation": 0,
