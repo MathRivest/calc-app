@@ -9,11 +9,13 @@ import { Representation } from './interpreter';
 
 export type Node = Expression;
 
-type MathOperator = '+' | '-' | '*' | '/' | '^';
-
 export enum NodeKind {
   NumberLiteral,
-  BinaryExpression,
+  Addition,
+  Substraction,
+  Multiplication,
+  Division,
+  Exponent,
   UnaryPlus,
   UnaryMinus,
   ConvertToBinary,
@@ -25,10 +27,19 @@ export type Expression =
   | NumberLiteral
   | UnaryMinus
   | UnaryPlus
-  | BinaryExpression
   | ConvertToBinary
   | ConvertToDecimal
-  | ConvertToUnit;
+  | ConvertToUnit
+  | Addition
+  | Substraction
+  | Multiplication
+  | Division
+  | Exponent;
+
+export interface BinaryExpression {
+  left: Expression;
+  right: Expression;
+}
 
 export type NumberLiteral = {
   kind: NodeKind.NumberLiteral;
@@ -52,12 +63,25 @@ export type UnaryMinus = {
   expression: Expression;
 };
 
-export type BinaryExpression = {
-  kind: NodeKind.BinaryExpression;
-  left: Expression;
-  right: Expression;
-  operator: MathOperator;
-};
+export interface Addition extends BinaryExpression {
+  kind: NodeKind.Addition;
+}
+
+export interface Substraction extends BinaryExpression {
+  kind: NodeKind.Substraction;
+}
+
+export interface Multiplication extends BinaryExpression {
+  kind: NodeKind.Multiplication;
+}
+
+export interface Division extends BinaryExpression {
+  kind: NodeKind.Division;
+}
+
+export interface Exponent extends BinaryExpression {
+  kind: NodeKind.Exponent;
+}
 
 export type ConvertToBinary = {
   kind: NodeKind.ConvertToBinary;
@@ -109,19 +133,6 @@ export default function parser(tokens: Token[]): Node {
       kind: NodeKind.NumberLiteral,
       value: parseInt(token.value, 2),
       representation: Representation.Binary,
-    };
-  }
-
-  function makeBinaryExpression(
-    left: Expression,
-    operator: MathOperator,
-    right: Expression
-  ): BinaryExpression {
-    return {
-      kind: NodeKind.BinaryExpression,
-      left: left,
-      operator: operator,
-      right: right,
     };
   }
 
@@ -197,7 +208,7 @@ export default function parser(tokens: Token[]): Node {
     let node: Expression = conversion();
 
     while (testAndConsume(SyntaxKind.CaretToken)) {
-      node = makeBinaryExpression(node, '^', conversion());
+      node = { kind: NodeKind.Exponent, left: node, right: conversion() };
     }
 
     return node;
@@ -208,13 +219,13 @@ export default function parser(tokens: Token[]): Node {
 
     while (true) {
       if (testAndConsume(SyntaxKind.AsteriskToken)) {
-        node = makeBinaryExpression(node, '*', exponent());
+        node = { kind: NodeKind.Multiplication, left: node, right: exponent() };
       } else if (testAndConsume(SyntaxKind.SlashToken)) {
-        node = makeBinaryExpression(node, '/', exponent());
+        node = { kind: NodeKind.Division, left: node, right: exponent() };
       } else if (testAndConsume(SyntaxKind.LPrecedence)) {
         let ex = expr();
         consumeToken(SyntaxKind.RPrecedence);
-        node = makeBinaryExpression(node, '*', ex);
+        node = { kind: NodeKind.Multiplication, left: node, right: ex };
       } else {
         break;
       }
@@ -228,9 +239,9 @@ export default function parser(tokens: Token[]): Node {
 
     while (true) {
       if (testAndConsume(SyntaxKind.PlusToken)) {
-        node = makeBinaryExpression(node, '+', term());
+        node = { kind: NodeKind.Addition, left: node, right: term() };
       } else if (testAndConsume(SyntaxKind.MinusToken)) {
-        node = makeBinaryExpression(node, '-', term());
+        node = { kind: NodeKind.Substraction, left: node, right: term() };
       } else {
         break;
       }
