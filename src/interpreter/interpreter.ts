@@ -113,11 +113,23 @@ function evaluate(ast: Node): string {
       case NodeKind.Substraction:
         return visitAdditiveBinaryExpression(node, (l, r) => l - r);
       case NodeKind.Multiplication:
-        return visitTermBinaryExpression(node, (l, r) => l * r);
+        return visitSimpleBinaryExpression(node, (l, r) => l * r);
       case NodeKind.Division:
-        return visitTermBinaryExpression(node, (l, r) => l / r);
+        return visitSimpleBinaryExpression(node, (l, r) => l / r);
+      case NodeKind.Modulo:
+        return visitSimpleBinaryExpression(node, (l, r) => l % r);
+      case NodeKind.BitwiseOr:
+        return visitSimpleBinaryExpression(node, (l, r) => l | r);
+      case NodeKind.BitwiseXor:
+        return visitSimpleBinaryExpression(node, (l, r) => l ^ r);
+      case NodeKind.BitwiseAnd:
+        return visitSimpleBinaryExpression(node, (l, r) => l & r);
+      case NodeKind.LeftShift:
+        return visitSimpleBinaryExpression(node, (l, r) => l << r);
+      case NodeKind.RightShift:
+        return visitSimpleBinaryExpression(node, (l, r) => l >> r);
       case NodeKind.Exponent:
-        return visitTermBinaryExpression(node, Math.pow);
+        return visitSimpleBinaryExpression(node, Math.pow);
       case NodeKind.NumberLiteral:
         return visitNumberLiteral(node);
       case NodeKind.ConvertToDecimal:
@@ -169,8 +181,7 @@ function evaluate(ast: Node): string {
     };
   }
 
-  // "*" "/" "^" : TODO : Find a better name
-  function visitTermBinaryExpression(
+  function visitSimpleBinaryExpression(
     node: BinaryExpression,
     operation: (left: number, right: number) => number
   ): ExpressionResult {
