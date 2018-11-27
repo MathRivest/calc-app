@@ -15,6 +15,12 @@ export enum SyntaxKind {
   AsteriskToken,
   SlashToken,
   CaretToken,
+  AmpersandToken,
+  PipeToken,
+  XorKeyword,
+  ModKeyword,
+  LeftShift,
+  RightShift,
   In,
   Binary,
   Decimal,
@@ -44,6 +50,8 @@ const simpleCharToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
   ['(', SyntaxKind.LPrecedence],
   [')', SyntaxKind.RPrecedence],
   ['^', SyntaxKind.CaretToken],
+  ['&', SyntaxKind.AmpersandToken],
+  ['|', SyntaxKind.PipeToken],
 ]);
 
 const keywordToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
@@ -59,6 +67,8 @@ const keywordToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
   ['in', SyntaxKind.In],
   ['binary', SyntaxKind.Binary],
   ['decimal', SyntaxKind.Decimal],
+  ['xor', SyntaxKind.XorKeyword],
+  ['mod', SyntaxKind.ModKeyword],
 ]);
 
 function completeKeywordToSyntaxMapWithUnits(
@@ -139,6 +149,16 @@ export default function tokenizer(input: string): Token[] {
         kind: syntaxKind,
       });
       current++;
+    } else if (char == '<' && input[current + 1] === '<') {
+      current += 2;
+      tokens.push({
+        kind: SyntaxKind.LeftShift,
+      });
+    } else if (char == '>' && input[current + 1] === '>') {
+      current += 2;
+      tokens.push({
+        kind: SyntaxKind.RightShift,
+      });
     } else if (char === '0' && input[current + 1] === 'b') {
       const binaryAsString = extractBinary(input, current);
       current += binaryAsString.length + 2;

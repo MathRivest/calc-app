@@ -11,10 +11,16 @@ export type Node = Expression;
 
 export enum NodeKind {
   NumberLiteral,
+  BitwiseOr,
+  BitwiseXor,
+  BitwiseAnd,
+  LeftShift,
+  RightShift,
   Addition,
   Substraction,
   Multiplication,
   Division,
+  Modulo,
   Exponent,
   UnaryPlus,
   UnaryMinus,
@@ -33,8 +39,14 @@ export type Expression =
   | Addition
   | Substraction
   | Multiplication
+  | Modulo
   | Division
-  | Exponent;
+  | Exponent
+  | BitwiseAnd
+  | BitwiseXor
+  | BitwiseOr
+  | LeftShift
+  | RightShift;
 
 export interface BinaryExpression {
   left: Expression;
@@ -63,6 +75,26 @@ export type UnaryMinus = {
   expression: Expression;
 };
 
+export interface BitwiseOr extends BinaryExpression {
+  kind: NodeKind.BitwiseOr;
+}
+
+export interface BitwiseXor extends BinaryExpression {
+  kind: NodeKind.BitwiseXor;
+}
+
+export interface BitwiseAnd extends BinaryExpression {
+  kind: NodeKind.BitwiseAnd;
+}
+
+export interface LeftShift extends BinaryExpression {
+  kind: NodeKind.LeftShift;
+}
+
+export interface RightShift extends BinaryExpression {
+  kind: NodeKind.RightShift;
+}
+
 export interface Addition extends BinaryExpression {
   kind: NodeKind.Addition;
 }
@@ -73,6 +105,10 @@ export interface Substraction extends BinaryExpression {
 
 export interface Multiplication extends BinaryExpression {
   kind: NodeKind.Multiplication;
+}
+
+export interface Modulo extends BinaryExpression {
+  kind: NodeKind.Modulo;
 }
 
 export interface Division extends BinaryExpression {
@@ -222,6 +258,8 @@ export default function parser(tokens: Token[]): Node {
         node = { kind: NodeKind.Multiplication, left: node, right: exponent() };
       } else if (testAndConsume(SyntaxKind.SlashToken)) {
         node = { kind: NodeKind.Division, left: node, right: exponent() };
+      } else if (testAndConsume(SyntaxKind.ModKeyword)) {
+        node = { kind: NodeKind.Modulo, left: node, right: exponent() };
       } else if (testAndConsume(SyntaxKind.LPrecedence)) {
         let ex = expr();
         consumeToken(SyntaxKind.RPrecedence);
@@ -234,7 +272,7 @@ export default function parser(tokens: Token[]): Node {
     return node;
   }
 
-  function expr(): Expression {
+  function additive(): Expression {
     let node: Expression = term();
 
     while (true) {
@@ -247,6 +285,46 @@ export default function parser(tokens: Token[]): Node {
       }
     }
 
+    return node;
+  }
+
+  function shift(): Expression {
+    let node: Expression = additive();
+
+    while (true) {
+      if (testAndConsume(SyntaxKind.LeftShift)) {
+        node = { kind: NodeKind.LeftShift, left: node, right: additive() };
+      } else if (testAndConsume(SyntaxKind.RightShift)) {
+        node = { kind: NodeKind.RightShift, left: node, right: additive() };
+      } else {
+        break;
+      }
+    }
+
+    return node;
+  }
+
+  function bitwiseAnd(): Expression {
+    let node: Expression = shift();
+    while (testAndConsume(SyntaxKind.AmpersandToken)) {
+      node = { kind: NodeKind.BitwiseAnd, left: node, right: shift() };
+    }
+    return node;
+  }
+
+  function bitwiseXor(): Expression {
+    let node: Expression = bitwiseAnd();
+    while (testAndConsume(SyntaxKind.XorKeyword)) {
+      node = { kind: NodeKind.BitwiseXor, left: node, right: bitwiseAnd() };
+    }
+    return node;
+  }
+
+  function expr(): Expression {
+    let node: Expression = bitwiseXor();
+    while (testAndConsume(SyntaxKind.PipeToken)) {
+      node = { kind: NodeKind.BitwiseOr, left: node, right: bitwiseXor() };
+    }
     return node;
   }
 

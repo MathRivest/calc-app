@@ -2,7 +2,7 @@
 
 exports[`should match addition snapshot 1`] = `
 Object {
-  "kind": 1,
+  "kind": 6,
   "left": Object {
     "kind": 0,
     "representation": 0,
@@ -18,9 +18,9 @@ Object {
 
 exports[`should match chain addition snapshot 1`] = `
 Object {
-  "kind": 2,
+  "kind": 7,
   "left": Object {
-    "kind": 1,
+    "kind": 6,
     "left": Object {
       "kind": 0,
       "representation": 0,
@@ -42,7 +42,7 @@ Object {
 
 exports[`should match division snapshot 1`] = `
 Object {
-  "kind": 4,
+  "kind": 9,
   "left": Object {
     "kind": 0,
     "representation": 0,
@@ -58,14 +58,14 @@ Object {
 
 exports[`should match multiplication and addition snapshot 1`] = `
 Object {
-  "kind": 1,
+  "kind": 6,
   "left": Object {
     "kind": 0,
     "representation": 0,
     "value": 1,
   },
   "right": Object {
-    "kind": 3,
+    "kind": 8,
     "left": Object {
       "kind": 0,
       "representation": 0,
@@ -82,7 +82,7 @@ Object {
 
 exports[`should match multiplication snapshot 1`] = `
 Object {
-  "kind": 3,
+  "kind": 8,
   "left": Object {
     "kind": 0,
     "representation": 0,
@@ -98,9 +98,9 @@ Object {
 
 exports[`should match precedence snapshot 1`] = `
 Object {
-  "kind": 3,
+  "kind": 8,
   "left": Object {
-    "kind": 1,
+    "kind": 6,
     "left": Object {
       "kind": 0,
       "representation": 0,
@@ -122,7 +122,7 @@ Object {
 
 exports[`should match substraction snapshot 1`] = `
 Object {
-  "kind": 2,
+  "kind": 7,
   "left": Object {
     "kind": 0,
     "representation": 0,
