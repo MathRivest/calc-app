@@ -7,16 +7,11 @@ import parser, {
   Expression,
 } from './parser';
 import { BaseUnitDefinition, unitDefinitions, UnitDefinition } from './units';
-
-export enum Representation {
-  Unknown,
-  Decimal,
-  Binary,
-}
+import { NumberFormat } from './NumberFormats';
 
 type ExpressionResult = {
   value: number;
-  representation: Representation;
+  format: NumberFormat;
   unit: string | null;
 };
 
@@ -58,13 +53,13 @@ function convert(
 }
 
 function mergeRepresentation(
-  left: Representation,
-  right: Representation
-): Representation {
-  if (left === Representation.Unknown) {
+  left: NumberFormat,
+  right: NumberFormat
+): NumberFormat {
+  if (left === NumberFormat.Unknown) {
     return right;
   }
-  if (right === Representation.Unknown) {
+  if (right === NumberFormat.Unknown) {
     return left;
   }
   return right;
@@ -84,14 +79,19 @@ function display(er: ExpressionResult): string {
 }
 
 function displayRepresentation(er: ExpressionResult): string {
-  switch (er.representation) {
-    case Representation.Unknown:
-    case Representation.Decimal:
+  switch (er.format) {
+    case NumberFormat.Unknown:
+    case NumberFormat.Decimal:
       return roundTo2Decimals(er.value);
-    case Representation.Binary:
+    case NumberFormat.Binary:
       return '0b' + er.value.toString(2);
+    case NumberFormat.Octal:
+      return '0o' + er.value.toString(8);
+    case NumberFormat.Hexadecimal:
+      return '0x' + er.value.toString(16);
+
     default:
-      throw new Error(`Unknown number representation: ${er.representation}`);
+      throw new Error(`Unknown number representation: ${er.format}`);
   }
 }
 
@@ -104,7 +104,7 @@ function evaluate(ast: Node): string {
         const result = visit(node.expression);
         return {
           value: -result.value,
-          representation: result.representation,
+          format: result.format,
           unit: null,
         };
       }
@@ -132,24 +132,19 @@ function evaluate(ast: Node): string {
         return visitSimpleBinaryExpression(node, Math.pow);
       case NodeKind.NumberLiteral:
         return visitNumberLiteral(node);
-      case NodeKind.ConvertToDecimal:
-        return {
-          ...visit(node.expression),
-          representation: Representation.Decimal,
-        };
-      case NodeKind.ConvertToBinary:
-        return {
-          ...visit(node.expression),
-          representation: Representation.Binary,
-        };
       case NodeKind.ConvertToUnit: {
         const result = visit(node.expression);
         return {
           value: convert(result.unit, node.unit, result.value),
           unit: node.unit,
-          representation: result.representation,
+          format: result.format,
         };
       }
+      case NodeKind.FormatNumber:
+        return {
+          ...visit(node.expression),
+          format: node.format,
+        };
       default:
         throw new Error(`Unexpected node kind: ${node}`);
     }
@@ -165,7 +160,7 @@ function evaluate(ast: Node): string {
   function visitAdditiveBinaryExpression(
     node: BinaryExpression,
     operation: (left: number, right: number) => number
-  ) {
+  ): ExpressionResult {
     const left = visit(node.left);
     const right = visit(node.right);
     const targetUnit = getAdditiveTargetUnit(left.unit, right.unit);
@@ -173,10 +168,7 @@ function evaluate(ast: Node): string {
 
     return {
       value: operation(leftConvertedValue, right.value),
-      representation: mergeRepresentation(
-        left.representation,
-        right.representation
-      ),
+      format: mergeRepresentation(left.format, right.format),
       unit: targetUnit,
     };
   }
@@ -190,10 +182,7 @@ function evaluate(ast: Node): string {
 
     return {
       value: operation(left.value, right.value),
-      representation: mergeRepresentation(
-        left.representation,
-        right.representation
-      ),
+      format: mergeRepresentation(left.format, right.format),
       unit: right.unit, // Todo : compute real target unit
     };
   }
@@ -201,7 +190,7 @@ function evaluate(ast: Node): string {
   function visitNumberLiteral(node: NumberLiteral): ExpressionResult {
     return {
       value: node.value,
-      representation: node.representation,
+      format: node.representation,
       unit: null,
     };
   }

@@ -1,4 +1,6 @@
 import { BaseUnitDefinition, unitDefinitions } from './units';
+import { NumberFormat } from './NumberFormats';
+import { NumberLiteral } from './parser';
 
 export interface Token {
   kind: SyntaxKind;
@@ -6,10 +8,9 @@ export interface Token {
 
 export enum SyntaxKind {
   NumberLiteral,
-  BinaryLiteral,
   EOF,
-  LPrecedence,
-  RPrecedence,
+  OpenParenthesis,
+  CloseParenthesis,
   PlusToken,
   MinusToken,
   AsteriskToken,
@@ -23,7 +24,9 @@ export enum SyntaxKind {
   RightShift,
   In,
   Binary,
+  Octal,
   Decimal,
+  Hexadecimal,
   Unit,
 }
 
@@ -34,11 +37,7 @@ export interface UnitToken extends Token {
 
 export interface NumberToken extends Token {
   kind: SyntaxKind.NumberLiteral;
-  value: string;
-}
-
-export interface BinaryLiteralToken extends Token {
-  kind: SyntaxKind.BinaryLiteral;
+  format: NumberFormat;
   value: string;
 }
 
@@ -47,8 +46,8 @@ const simpleCharToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
   ['-', SyntaxKind.MinusToken],
   ['*', SyntaxKind.AsteriskToken],
   ['/', SyntaxKind.SlashToken],
-  ['(', SyntaxKind.LPrecedence],
-  [')', SyntaxKind.RPrecedence],
+  ['(', SyntaxKind.OpenParenthesis],
+  [')', SyntaxKind.CloseParenthesis],
   ['^', SyntaxKind.CaretToken],
   ['&', SyntaxKind.AmpersandToken],
   ['|', SyntaxKind.PipeToken],
@@ -66,7 +65,9 @@ const keywordToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
   ['divide', SyntaxKind.SlashToken],
   ['in', SyntaxKind.In],
   ['binary', SyntaxKind.Binary],
+  ['octal', SyntaxKind.Octal],
   ['decimal', SyntaxKind.Decimal],
+  ['hex', SyntaxKind.Hexadecimal],
   ['xor', SyntaxKind.XorKeyword],
   ['mod', SyntaxKind.ModKeyword],
 ]);
@@ -111,6 +112,35 @@ function extractBinary(input: string, i: number): string {
   i += 2; // Skip over prefix
   let value = '';
   while (input[i] === '0' || input[i] === '1') {
+    value += input[i];
+    i++;
+  }
+  return value;
+}
+
+function extractOctal(input: string, i: number): string {
+  if (input[i] !== '0' && input[i + 1] !== 'o') {
+    throw new Error('Expected literal octal prefix');
+  }
+  i += 2; // Skip over prefix
+  let value = '';
+  while (input[i].charCodeAt(0) >= 48 && input[i].charCodeAt(0) <= 57) {
+    value += input[i];
+    i++;
+  }
+  return value;
+}
+
+function extractHexa(input: string, i: number): string {
+  if (input[i] !== '0' && input[i + 1] !== 'x') {
+    throw new Error('Expected literal octal prefix');
+  }
+  i += 2; // Skip over prefix
+  let value = '';
+  while (
+    (input[i].charCodeAt(0) >= 48 && input[i].charCodeAt(0) <= 57) ||
+    (input[i].charCodeAt(0) >= 97 && input[i].charCodeAt(0) <= 102)
+  ) {
     value += input[i];
     i++;
   }
@@ -163,14 +193,32 @@ export default function tokenizer(input: string): Token[] {
       const binaryAsString = extractBinary(input, current);
       current += binaryAsString.length + 2;
       tokens.push({
-        kind: SyntaxKind.BinaryLiteral,
+        kind: SyntaxKind.NumberLiteral,
+        format: NumberFormat.Binary,
         value: binaryAsString,
-      } as BinaryLiteralToken);
+      } as NumberToken);
+    } else if (char === '0' && input[current + 1] === 'o') {
+      const octalAsString = extractOctal(input, current);
+      current += octalAsString.length + 2;
+      tokens.push({
+        kind: SyntaxKind.NumberLiteral,
+        format: NumberFormat.Octal,
+        value: octalAsString,
+      } as NumberToken);
+    } else if (char === '0' && input[current + 1] === 'x') {
+      const hexaAsString = extractHexa(input, current);
+      current += hexaAsString.length + 2;
+      tokens.push({
+        kind: SyntaxKind.NumberLiteral,
+        format: NumberFormat.Hexadecimal,
+        value: hexaAsString,
+      } as NumberToken);
     } else if (isDigit(char)) {
       var numberAsString = extractNumber(input, current);
       current += numberAsString.length;
       tokens.push({
         kind: SyntaxKind.NumberLiteral,
+        format: NumberFormat.Unknown,
         value: numberAsString,
       } as NumberToken);
     } else if (isLetter(char)) {
