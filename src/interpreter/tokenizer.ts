@@ -1,4 +1,6 @@
 import { BaseUnitDefinition, unitDefinitions } from './units';
+import { NumberFormat } from './NumberFormats';
+import { NumberLiteral } from './parser';
 
 export interface Token {
   kind: SyntaxKind;
@@ -6,7 +8,6 @@ export interface Token {
 
 export enum SyntaxKind {
   NumberLiteral,
-  BinaryLiteral,
   EOF,
   OpenParenthesis,
   CloseParenthesis,
@@ -36,11 +37,7 @@ export interface UnitToken extends Token {
 
 export interface NumberToken extends Token {
   kind: SyntaxKind.NumberLiteral;
-  value: string;
-}
-
-export interface BinaryLiteralToken extends Token {
-  kind: SyntaxKind.BinaryLiteral;
+  format: NumberFormat;
   value: string;
 }
 
@@ -121,6 +118,35 @@ function extractBinary(input: string, i: number): string {
   return value;
 }
 
+function extractOctal(input: string, i: number): string {
+  if (input[i] !== '0' && input[i + 1] !== 'o') {
+    throw new Error('Expected literal octal prefix');
+  }
+  i += 2; // Skip over prefix
+  let value = '';
+  while (input[i].charCodeAt(0) >= 48 && input[i].charCodeAt(0) <= 57) {
+    value += input[i];
+    i++;
+  }
+  return value;
+}
+
+function extractHexa(input: string, i: number): string {
+  if (input[i] !== '0' && input[i + 1] !== 'x') {
+    throw new Error('Expected literal octal prefix');
+  }
+  i += 2; // Skip over prefix
+  let value = '';
+  while (
+    (input[i].charCodeAt(0) >= 48 && input[i].charCodeAt(0) <= 57) ||
+    (input[i].charCodeAt(0) >= 97 && input[i].charCodeAt(0) <= 102)
+  ) {
+    value += input[i];
+    i++;
+  }
+  return value;
+}
+
 function extractNumber(input: string, current: number): string {
   let value = '';
   let hasDecimals = false;
@@ -167,14 +193,32 @@ export default function tokenizer(input: string): Token[] {
       const binaryAsString = extractBinary(input, current);
       current += binaryAsString.length + 2;
       tokens.push({
-        kind: SyntaxKind.BinaryLiteral,
+        kind: SyntaxKind.NumberLiteral,
+        format: NumberFormat.Binary,
         value: binaryAsString,
-      } as BinaryLiteralToken);
+      } as NumberToken);
+    } else if (char === '0' && input[current + 1] === 'o') {
+      const octalAsString = extractOctal(input, current);
+      current += octalAsString.length + 2;
+      tokens.push({
+        kind: SyntaxKind.NumberLiteral,
+        format: NumberFormat.Octal,
+        value: octalAsString,
+      } as NumberToken);
+    } else if (char === '0' && input[current + 1] === 'x') {
+      const hexaAsString = extractHexa(input, current);
+      current += hexaAsString.length + 2;
+      tokens.push({
+        kind: SyntaxKind.NumberLiteral,
+        format: NumberFormat.Hexadecimal,
+        value: hexaAsString,
+      } as NumberToken);
     } else if (isDigit(char)) {
       var numberAsString = extractNumber(input, current);
       current += numberAsString.length;
       tokens.push({
         kind: SyntaxKind.NumberLiteral,
+        format: NumberFormat.Unknown,
         value: numberAsString,
       } as NumberToken);
     } else if (isLetter(char)) {

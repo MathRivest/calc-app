@@ -1,10 +1,4 @@
-import {
-  Token,
-  SyntaxKind,
-  NumberToken,
-  BinaryLiteralToken,
-  UnitToken,
-} from './tokenizer';
+import { Token, SyntaxKind, NumberToken, UnitToken } from './tokenizer';
 import { NumberFormat } from './NumberFormats';
 
 export type Node = Expression;
@@ -155,21 +149,27 @@ export default function parser(tokens: Token[]): Node {
     return token;
   }
 
+  function parseNumber(str: string, format: NumberFormat): number {
+    switch (format) {
+      case NumberFormat.Binary:
+        return parseInt(str, 2);
+      case NumberFormat.Octal:
+        return parseInt(str, 8);
+      case NumberFormat.Hexadecimal:
+        return parseInt(str, 16);
+      case NumberFormat.Unknown:
+      case NumberFormat.Decimal:
+        return parseFloat(str);
+      default:
+        throw new Error('Unsupport number format');
+    }
+  }
+
   function makeNumberLiteral(token: NumberToken): NumberLiteral {
     return {
       kind: NodeKind.NumberLiteral,
-      value: parseFloat(token.value),
+      value: parseNumber(token.value, token.format),
       representation: NumberFormat.Unknown,
-    };
-  }
-
-  function makeNumberLiteralFromBinary(
-    token: BinaryLiteralToken
-  ): NumberLiteral {
-    return {
-      kind: NodeKind.NumberLiteral,
-      value: parseInt(token.value, 2),
-      representation: NumberFormat.Binary,
     };
   }
 
@@ -179,10 +179,6 @@ export default function parser(tokens: Token[]): Node {
       return { kind: NodeKind.UnaryPlus, expression: factor() };
     } else if (testAndConsume(SyntaxKind.MinusToken)) {
       return { kind: NodeKind.UnaryMinus, expression: factor() };
-    } else if (token.kind === SyntaxKind.BinaryLiteral) {
-      return makeNumberLiteralFromBinary(consumeToken(
-        SyntaxKind.BinaryLiteral
-      ) as BinaryLiteralToken);
     } else if (token.kind === SyntaxKind.NumberLiteral) {
       return makeNumberLiteral(consumeToken(
         SyntaxKind.NumberLiteral
