@@ -186,9 +186,9 @@ export default function parser(tokens: Token[]): Node {
       return makeNumberLiteral(consumeToken(
         SyntaxKind.NumberLiteral
       ) as NumberToken);
-    } else if (testAndConsume(SyntaxKind.LPrecedence)) {
+    } else if (testAndConsume(SyntaxKind.OpenParenthesis)) {
       let node = expr();
-      consumeToken(SyntaxKind.RPrecedence);
+      consumeToken(SyntaxKind.CloseParenthesis);
       return node;
     }
     throw Error(`Unexpected token : ${token}`);
@@ -260,9 +260,9 @@ export default function parser(tokens: Token[]): Node {
         node = { kind: NodeKind.Division, left: node, right: exponent() };
       } else if (testAndConsume(SyntaxKind.ModKeyword)) {
         node = { kind: NodeKind.Modulo, left: node, right: exponent() };
-      } else if (testAndConsume(SyntaxKind.LPrecedence)) {
+      } else if (testAndConsume(SyntaxKind.OpenParenthesis)) {
         let ex = expr();
-        consumeToken(SyntaxKind.RPrecedence);
+        consumeToken(SyntaxKind.CloseParenthesis);
         node = { kind: NodeKind.Multiplication, left: node, right: ex };
       } else {
         break;
