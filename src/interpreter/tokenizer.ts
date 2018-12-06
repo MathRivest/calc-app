@@ -23,7 +23,9 @@ export enum SyntaxKind {
   RightShift,
   In,
   Binary,
+  Octal,
   Decimal,
+  Hexadecimal,
   Unit,
 }
 
@@ -66,7 +68,9 @@ const keywordToSyntaxKindMap: Map<string, SyntaxKind> = new Map([
   ['divide', SyntaxKind.SlashToken],
   ['in', SyntaxKind.In],
   ['binary', SyntaxKind.Binary],
+  ['octal', SyntaxKind.Octal],
   ['decimal', SyntaxKind.Decimal],
+  ['hex', SyntaxKind.Hexadecimal],
   ['xor', SyntaxKind.XorKeyword],
   ['mod', SyntaxKind.ModKeyword],
 ]);
