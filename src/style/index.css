@@ -1,19 +1,43 @@
 :root {
-  --color-theme-background-1: #1c1d30;
+  /* 1 to x = darker to ligher */
+  /* Theme 1 - Dark */
+  /* --color-theme-background-1: #1c1d30;
   --color-theme-background-2: #292942;
-  --color-theme-background-3: #292942;
   --color-theme-text-color-1: rgba(255, 255, 255, 1);
   --color-theme-text-color-2: rgba(255, 255, 255, 0.6);
   --color-theme-text-color-3: rgba(255, 255, 255, 0.4);
   --color-theme-accent-1: #59cecf;
+  --border-theme-color-1: #292942; */
 
+
+  /* Theme 2 - Dark */
   /* --color-theme-background-1: #161b25;
   --color-theme-background-2: #202734;
-  --color-theme-background-3: #202734;
   --color-theme-text-color-1: rgba(255, 255, 255, 1);
   --color-theme-text-color-2: rgba(255, 255, 255, 0.6);
   --color-theme-text-color-3: rgba(255, 255, 255, 0.4);
-  --color-theme-accent-1: #f16586; */
+  --color-theme-accent-1: #f16586;
+  --border-theme-color-1: #202734; */
+
+  /* 1 to x = ligher to darker */
+  /* Theme 3 - Light */
+  --color-theme-background-1: #ffffff;
+  --color-theme-background-2: #fefefe;
+  --color-theme-text-color-1: #303030;
+  --color-theme-text-color-2: #505050;
+  --color-theme-text-color-3: #A4A4A4;
+  --color-theme-accent-1: #0063e1;
+  --border-theme-color-1: #F0F0F0;
+
+  --shadow-level-1: 0 0 14px rgba(0, 0, 0, 0.1);
+
+
+  /* App Colors */
+  --app-background: var(--color-theme-background-1);
+  --app-color-quiet: var(--color-theme-text-color-2);
+  --app-color-muted: var(--color-theme-text-color-3);
+  --app-calc-footer-background: var(--color-theme-background-2);
+  --app-calc-footer-color: var(--color-theme-text-color-1);
 }
 
 html,
@@ -22,7 +46,7 @@ body {
   width: 100%;
   padding: 0;
   margin: 0;
-  background: var(--color-theme-background-1);
+  background: var(--app-background);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   font-weight: 400;

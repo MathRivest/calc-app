@@ -6,15 +6,21 @@
   flex-direction: column;
   align-items: flex-end;
   padding: 12px 20px;
+  border-bottom: 1px solid var(--border-theme-color-1);
 }
-.rowItem:nth-child(odd) {
+
+/* .rowItem:nth-child(odd) {
   background-color: rgba(255, 255, 255, 0.02);
+} */
+
+.rowItem:last-child {
+  border-bottom: 0;
 }
 
 .rowItemValue {
   font-size: 18px;
   line-height: 24px;
-  color: var(--color-theme-text-color-2);
+  color: var(--app-color-quiet);
 }
 
 .rowItemResult {

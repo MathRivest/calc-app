@@ -19,5 +19,6 @@
 
 .calculatorFooter {
   padding: 20px;
-  background: var(--color-theme-background-2);
+  background: var(--app-calc-footer-background);
+  box-shadow: var(--shadow-level-1);
 }

@@ -38,7 +38,7 @@ export default class EditableRow extends Component<
         onKeyDown={this.handleChange}
         onChange={this.handleSubmit}
         value={this.state.expression}
-        placeholder="e.g. (10+2)^2*100)"
+        placeholder="e.g. (10+2)^2*100"
       />
     );
   }
